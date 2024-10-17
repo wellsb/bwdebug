@@ -73,10 +73,16 @@ function bwdebug($Capture, $File = 1, $first = false) {
                 $capStrs = explode("#", $Capture);
                 foreach ($capStrs as $capStr)
                 {
+                    // Colour on?
                     if ($colourOutput && $colourMethodHeaders) {
-                        $output .= "\033[33m".$capStr."\t \033[0m";
-                    } else {
-                        $output .= $capStr."\t";
+                        $output .= "\033[33m";
+                    }
+
+                    $output .= $capStr."\t";
+
+                    // If colour on? turn it off
+                    if ($colourOutput && $colourMethodHeaders) {
+                        $output .= "\033[0m";
                     }
                 }
 
@@ -103,7 +109,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
         }
     } else {
         // Is first - print debug header
-        // Turn the colour on
+        // Turn the colour on if needed
         if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[32m";
         }
@@ -112,7 +118,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
             $output .= "-".str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT)."-----".date('H:i:s')."------------\n";
         }
 
-        // Turn the colour off again
+        // Turn the colour off again if needed
         if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
