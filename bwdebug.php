@@ -3,7 +3,7 @@
 /*
 TODO
     Double output of randNumberForStartMArker?
-        fixed but now needs first on own
+        fixed but now needs to be treated like any other dump
 */
 
 /**
@@ -73,7 +73,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
                 $capStrs = explode("#", $Capture);
                 foreach ($capStrs as $capStr)
                 {
-                    if ($$colourOutput && $colourMethodHeaders) {
+                    if ($colourOutput && $colourMethodHeaders) {
                         $output .= "\033[33m".$capStr."\t \033[0m";
                     } else {
                         $output .= $capStr."\t";
@@ -103,7 +103,8 @@ function bwdebug($Capture, $File = 1, $first = false) {
         }
     } else {
         // Is first - print debug header
-        if ($$colourOutput && $colourDebugHeaders) {
+        // Turn the colour on
+        if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[32m";
         }
 
@@ -111,14 +112,11 @@ function bwdebug($Capture, $File = 1, $first = false) {
             $output .= "-".str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT)."-----".date('H:i:s')."------------\n";
         }
 
-        if ($$colourOutput && $colourDebugHeaders) {
+        // Turn the colour off again
+        if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
         $output .= $Capture;
-
-
-
-
     }
     file_put_contents($filename, $output, FILE_APPEND);
 }
