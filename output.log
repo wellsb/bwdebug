@@ -20087,3 +20087,36 @@ array(1) {
   [0]=>
   string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
 }
+
+
+[32m-91-----23:32:07------------
+[0ma string**/media/170/html/dev/bwdebug#bwdebug.php##->genRandHtml():156array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-74-----23:35:11------------
+[0ma string**/media/170/html/dev/bwdebug#bwdebug.php##->genRandHtml():166[0marray(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+[32m-23-----23:35:31------------
+[0ma string
+
+[33m**/media/170/html/dev/bwdebug#bwdebug.php##->genRandHtml():166[0marray(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-80-----23:35:48------------
+[0ma string
+
+[33m**/media/170/html/dev/bwdebug#bwdebug.php##->genRandHtml():166
+[0marray(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}

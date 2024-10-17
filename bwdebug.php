@@ -24,7 +24,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
     // -Config------
         // Tab out method headers
-        $tabItOut = 1;
+        $tabItOut = 0;
 
         // Output method var_dump || print_r
         $outputMethod = 'var_dump';
@@ -93,7 +93,17 @@ function bwdebug($Capture, $File = 1, $first = false) {
                 $output = rtrim($output, "\t")."\n";
             } else {
                 // None tabbed method header
-                $output = $Capture;
+                // Colour on?
+                if ($colourOutput && $colourMethodHeaders) {
+                    $output .= "\033[33m";
+                }
+
+                $output .= $Capture."\n";
+
+                // If colour on? turn it off
+                if ($colourOutput && $colourMethodHeaders) {
+                    $output .= "\033[0m";
+                }
             }
         } else {
             // Default output
