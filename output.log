@@ -18787,3 +18787,1173 @@ array(1) {
   [0]=>
   string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
 }
+
+-99-----20:17:07------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():86
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-98-----20:17:16------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():86
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-35-----20:17:23------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():86
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-11-----20:18:07------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():86
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-80-----20:26:13------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():86
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-12-----20:27:46------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():96
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-38-----20:27:50------------
+string(7) "stringy"
+int(1)
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():96
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+-87-----20:31:37------------
+string(7) "stringy"
+int(1)
+
+
+
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():104
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+-25-----20:32:08------------
+string(7) "stringy"
+int(1)
+
+
+
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():106
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+
+
+-47-----20:32:56------------
+string(7) "stringy"
+int(1)
+
+
+
+
+-/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():106
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+-
+
+
+
+22-----20:33:30------------
+string(7) "stringy"
+int(1)
+-
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-
+
+
+
+71-----20:33:54------------
+string(7) "stringy"
+int(1)
+
+-
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-
+
+
+
+22-----20:33:58------------
+string(7) "stringy"
+int(1)
+
+-
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-
+
+
+
+47-----20:34:02------------
+string(7) "stringy"
+int(1)
+
+-
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+
+
+11-----20:34:53------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+26-----20:36:04------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+
+
+63-----20:38:19------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():108
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+
+
+76-----20:39:00------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():108
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+
+
+48-----20:39:09------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():108
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+
+
+49-----20:39:13------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():108
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+83-----20:39:49------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():108
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+14-----20:39:53------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():108
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+
+
+42-----20:40:41------------
+string(7) "stringy"
+int(1)
+
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+35-----20:40:48------------
+string(7) "stringy"
+int(1)
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+55-----20:41:11------------
+string(7) "stringy"
+int(1)
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+27-----20:41:15------------
+string(7) "stringy"
+int(1)
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+71-----20:41:24------------
+string(7) "stringy"
+int(1)
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+54-----20:41:47------------
+string(7) "stringy"
+int(1)
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():105
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+26-----20:48:48------------
+
+53-----20:49:00------------
+
+35-----20:49:13------------
+
+10-----20:54:08------------
+
+84-----20:56:53------------
+
+70-----20:56:55------------
+
+45-----20:57:12------------
+string(7) "stringy"
+int(1)
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():114
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+71-----20:57:17------------
+string(7) "stringy"
+int(1)
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():114
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+73-----20:57:33------------
+stringy1
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():114
+Array
+(
+    [0] => <ul><li>This is a random list item</li><li>This is another random list item</li></ul>
+)
+
+61-----20:59:14------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():112
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():112
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():119
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+18-----21:10:16------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+88-----21:11:13------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+**/media/170/html/dev/bwdebug#tailHtml.php##->genRandHtml():123array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+-----21:17:33------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+**/media/170/html/dev/bwdebug#tailHtml.php##->genRandHtml():125array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-----21:17:35------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+**/media/170/html/dev/bwdebug#tailHtml.php##->genRandHtml():125array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-----21:17:38------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+**/media/170/html/dev/bwdebug#tailHtml.php##->genRandHtml():125array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+-----21:17:55------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():125
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-----21:17:59------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():125
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+-----21:21:06------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():124
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+-----21:22:32------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():127
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+-----21:22:37------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():127
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-----21:22:41------------
+string(14) "another string"
+int(1)
+array(2) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():127
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-----21:33:17------------
+string(14) "another string"
+int(1)
+array(3) {
+  [0]=>
+  string(5) "fruit"
+  [1]=>
+  array(3) {
+    [0]=>
+    string(5) "apple"
+    [1]=>
+    string(7) "bannana"
+    [2]=>
+    string(4) "pear"
+  }
+  [2]=>
+  int(2)
+}
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():127
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-----21:33:39------------
+string(14) "another string"
+int(1)
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():127
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+-----21:46:16------------
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():129
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+84-----21:46:52------------
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():129
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-08-----21:47:23------------
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():129
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-72-----21:48:14------------
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():129
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+-06-----21:48:57------------
+
+a string
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():129
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+-06-----21:49:24------------
+a string
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():129
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+-63-----21:55:32------------
+a string
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+-87-----21:55:45------------
+a string
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+-75-----21:56:48------------
+a string
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+-75-----21:56:56------------
+a string
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+
+
+-32-----21:56:58------------
+a string
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+-
+-
+-
+-
+-06-----21:57:15------------
+a string-
+-
+-
+-
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+
+
+-87-----21:57:42------------
+a string
+
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+
+-26-----21:57:49------------
+a string
+
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+-58-----21:57:56------------
+a string
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():131
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+-96-----22:03:44------------
+a string
+
+[31m/media/170/html/dev/bwdebug	 [0m[31mtailHtml.php	 [0m[31m	 [0m[31m->genRandHtml():134	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+-21-----22:04:32------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():134	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+-56-----22:06:26------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():139	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+-60-----22:06:33------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():139	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+[32m
+
+-51-----22:13:20------------
+a string[0m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+[32m
+
+-04[0m-----22:14:21------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+[32m
+
+-60-----22:15:05------------
+a string[0m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+[32m
+
+-13-----22:15:14------------
+a string[0m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+[32m
+
+-32-----22:16:11------------
+a string[0m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+[32m
+
+-05-----22:16:14------------
+a string[0m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+-43-----22:16:31------------
+a string[32m
+
+-43-----22:16:31------------
+a string[0m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+-78-----22:16:59------------
+a string[32m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+-84-----22:17:03------------
+a string[32m
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():148	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-33-----22:17:35------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():150	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-13-----22:18:22------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():153	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-53-----22:19:21------------
+[0ma string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():153	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-34-----22:20:32------------
+[0ma string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():154	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+[32m-48-----22:20:36------------
+[0ma string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():154	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}
+
+
+-58-----22:32:35------------
+a string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():153	 [0m
+array(1) {
+  [0]=>
+  string(85) "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>"
+}
+
+
+[32m-74-----22:35:34------------
+[0ma string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():153	 [0m
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
