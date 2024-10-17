@@ -19957,3 +19957,23 @@ array(1) {
   [0]=>
   string(33) "<h1>This is a random heading</h1>"
 }
+
+
+[32m-22-----22:50:54------------
+[0ma string
+
+/media/170/html/dev/bwdebug	tailHtml.php		->genRandHtml():152
+array(1) {
+  [0]=>
+  string(33) "<h1>This is a random heading</h1>"
+}
+
+
+[32m-16-----22:51:04------------
+[0ma string
+
+[33m/media/170/html/dev/bwdebug	 [0m[33mtailHtml.php	 [0m[33m	 [0m[33m->genRandHtml():152	 [0m
+array(1) {
+  [0]=>
+  string(33) "<p>This is a random paragraph</p>"
+}

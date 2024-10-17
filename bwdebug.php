@@ -36,8 +36,8 @@ function bwdebug($Capture, $File = 1, $first = false) {
         $blankLinesBetweenOutputs = 1;
 
         // Try to output coloured outputs
-        $colouredOutput = true;
-            $colouredDebugHeaders = true;
+        $colourOutput = true;
+            $colourDebugHeaders = true;
             $colourMethodHeaders = true;
 
         // Debug to raw $Capture to StdOut
@@ -65,7 +65,6 @@ function bwdebug($Capture, $File = 1, $first = false) {
         $filename = 'output2.log';
     }
 
-
     if (!$first) {
         // Is not first (could be method header or normal dump)
         if (is_string($Capture) && strpos($Capture, '**') === 0) {
@@ -74,7 +73,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
                 $capStrs = explode("#", $Capture);
                 foreach ($capStrs as $capStr)
                 {
-                    if ($colouredOutput && $colourMethodHeaders) {
+                    if ($$colourOutput && $colourMethodHeaders) {
                         $output .= "\033[33m".$capStr."\t \033[0m";
                     } else {
                         $output .= $capStr."\t";
@@ -104,7 +103,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
         }
     } else {
         // Is first - print debug header
-        if ($colouredOutput && $colouredDebugHeaders) {
+        if ($$colourOutput && $colourDebugHeaders) {
             $output .= "\033[32m";
         }
 
@@ -112,7 +111,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
             $output .= "-".str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT)."-----".date('H:i:s')."------------\n";
         }
 
-        if ($colouredOutput && $colouredDebugHeaders) {
+        if ($$colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
         $output .= $Capture;
