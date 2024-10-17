@@ -51,18 +51,18 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
     $output = "";
 
-    // If set insert blank lines
-    if ($blankLinesBetweenOutputs > 0) {
-        for ($i = 0; $i <= $blankLinesBetweenOutputs; $i++) {
-            $output .= "\n";
-        }
-    }
-
     // Work out what file to send this output
     if ($File == 1) {
         $filename = 'output.log';
     } else {
         $filename = 'output2.log';
+    }
+
+    // If set insert blank lines
+    if ($blankLinesBetweenOutputs > 0) {
+        for ($i = 0; $i <= $blankLinesBetweenOutputs; $i++) {
+            $output .= "\n";
+        }
     }
 
     if (!$first) {
@@ -99,6 +99,8 @@ function bwdebug($Capture, $File = 1, $first = false) {
                 }
 
                 $output .= $Capture."\n";
+                // Trim the ** used to detect method headers
+                $output = str_replace('**', '', $output);
 
                 // If colour on? turn it off
                 if ($colourOutput && $colourMethodHeaders) {
@@ -132,6 +134,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
         if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
+        // TODO: this is not a proper var_dump / print_r
         $output .= $Capture;
     }
     file_put_contents($filename, $output, FILE_APPEND);
