@@ -3,6 +3,8 @@
 /*
 TODO
     $first outputs it's variable to the console (twice actually) instead of the file
+    implement $blankLinesBeforeAllOutputs - timer?
+        blankLinesBeforeAllOutputs kind of implemented
 */
 
 /**
@@ -22,18 +24,20 @@ TODO
 function bwdebug($Capture, $File = 1, $first = false) {
 
     // -Config------
-        // Tab out method headers
-        $tabItOut = 1;
 
         // Output method var_dump || print_r
             $outputMethod = 'var_dump';
             //$outputMethod = 'print_r';
 
+        // Tab out method headers
+            $tabOutMethodHeaders = 1;
+
         // Start each capture with a random number
             $genRandNumberForStartMarker = 1;
 
         // Blank lines before output
-            $blankLinesBetweenOutputs = 1;
+            $blankLinesBetweenOutputs = 0;
+            $blankLinesBeforeAllOutputs = 4;
 
         // Try to output coloured outputs
             $colourOutput = true;
@@ -48,13 +52,6 @@ function bwdebug($Capture, $File = 1, $first = false) {
             $debugToStdOut = 0;
     // -------------
 
-    // Debug to console
-    if ($debugToStdOut) {
-        var_dump($Capture);
-    }
-
-    $output = "";
-
     // Work out what file to send this output
     if ($File == 1) {
         $filename = 'output.log';
@@ -62,11 +59,34 @@ function bwdebug($Capture, $File = 1, $first = false) {
         $filename = 'output2.log';
     }
 
+    // Debug to console
+    if ($debugToStdOut) {
+        var_dump($Capture);
+    }
+
+    $output = "";
+
+    // If set insert blank lines
+    if ($blankLinesBeforeAllOutputs > 0) {
+        $started = time();
+        var_dump($started);
+        //var_dump()
+        if ($started < ($started + 3)) {
+            echo "\nis within 2 seconds\n";
+            for ($i = 0; $i <= $blankLinesBeforeAllOutputs; $i++) {
+                $output .= "\n";
+            }
+        }
+    }
+
     // If set insert blank lines
     if ($blankLinesBetweenOutputs > 0) {
+    echo "\nBetweenSet\n";
         for ($i = 0; $i <= $blankLinesBetweenOutputs; $i++) {
-            $output .= "\n";
+            $output .= "66\n";
         }
+    } else {
+        "what";
     }
 
     if ($first) {
@@ -89,9 +109,8 @@ function bwdebug($Capture, $File = 1, $first = false) {
     // Is not first (could be method header or normal dump)
     if (is_string($Capture) && strpos($Capture, '**') === 0) {
         // It's a method header (starts with **)
-        if ($tabItOut) {
+        if ($tabOutMethodHeaders) {
             $capStrs = explode("#", $Capture);
-            var_dump($capStrs);
 
             // Colour on?
             if ($colourOutput && $colourMethodHeaders) {
@@ -168,7 +187,7 @@ $cars = ['fird', 'pergeot', 'vauxhall'];
 
 bwdebug("a string", 1, 1);
 bwdebug("another string");
-//bwdebug(1);
+bwdebug(1);
 //bwdebug("", 1, 1);
 //bwdebug($birds, 1, 1);
 //bwdebug(["fruit", $fruit], 2);
