@@ -2,8 +2,7 @@
 
 /*
 TODO
-    Double output of randNumberForStartMArker?
-        fixed but now needs to be treated like any other dump
+    $first outputs it's variable to the console (twice actually) instead of the file
 */
 
 /**
@@ -24,24 +23,29 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
     // -Config------
         // Tab out method headers
-        $tabItOut = 0;
+        $tabItOut = 1;
 
         // Output method var_dump || print_r
-        $outputMethod = 'var_dump';
+            $outputMethod = 'var_dump';
+            //$outputMethod = 'print_r';
 
         // Start each capture with a random number
-        $genRandNumberForStartMarker = 1;
+            $genRandNumberForStartMarker = 1;
 
         // Blank lines before output
-        $blankLinesBetweenOutputs = 1;
+            $blankLinesBetweenOutputs = 1;
 
         // Try to output coloured outputs
-        $colourOutput = true;
-            $colourDebugHeaders = true;
-            $colourMethodHeaders = true;
+            $colourOutput = true;
+                $colourDebugHeaders = true;
+                    $debugHeaderColor = "\033[32m";
+                $colourMethodHeaders = true;
+                    $methodHeaderColour = "\033[33m";
+                $colourActualOutput = true;
+                    $actualOutputColour = "\033[36m";
 
         // Debug to raw $Capture to StdOut
-        $debugToStdOut = true;
+            $debugToStdOut = 0;
     // -------------
 
     // Debug to console
@@ -65,67 +69,13 @@ function bwdebug($Capture, $File = 1, $first = false) {
         }
     }
 
-    if (!$first) {
-        // Is not first (could be method header or normal dump)
-        if (is_string($Capture) && strpos($Capture, '**') === 0) {
-            // It's a method header (starts with **)
-            if ($tabItOut) {
-                $capStrs = explode("#", $Capture);
-                foreach ($capStrs as $capStr)
-                {
-                    // Colour on?
-                    if ($colourOutput && $colourMethodHeaders) {
-                        $output .= "\033[33m";
-                    }
-
-                    $output .= $capStr."\t";
-
-                    // If colour on? turn it off
-                    if ($colourOutput && $colourMethodHeaders) {
-                        $output .= "\033[0m";
-                    }
-                }
-
-                // Trim the ** used to detect method headers
-                $output = str_replace('**', '', $output);
-
-                // Trim the last tab
-                $output = rtrim($output, "\t")."\n";
-            } else {
-                // None tabbed method header
-                // Colour on?
-                if ($colourOutput && $colourMethodHeaders) {
-                    $output .= "\033[33m";
-                }
-
-                $output .= $Capture."\n";
-                // Trim the ** used to detect method headers
-                $output = str_replace('**', '', $output);
-
-                // If colour on? turn it off
-                if ($colourOutput && $colourMethodHeaders) {
-                    $output .= "\033[0m";
-                }
-            }
-        } else {
-            // Default output
-            ob_start();
-            if ($outputMethod == 'var_dump')
-            {
-                var_dump($Capture);
-            } else if ($outputMethod == 'print_r')
-            {
-                print_r($Capture);
-            }
-            $output = ob_get_clean();
-        }
-    } else {
-        // Is first - print debug header
+    if ($first) {
         // Turn the colour on if needed
         if ($colourOutput && $colourDebugHeaders) {
-            $output .= "\033[32m";
+            $output .= $debugHeaderColor;
         }
 
+        // Add random number to start marker
         if ($genRandNumberForStartMarker) {
             $output .= "-".str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT)."-----".date('H:i:s')."------------\n";
         }
@@ -134,11 +84,81 @@ function bwdebug($Capture, $File = 1, $first = false) {
         if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
-        // TODO: this is not a proper var_dump / print_r
-        $output .= $Capture;
+    }
+
+    // Is not first (could be method header or normal dump)
+    if (is_string($Capture) && strpos($Capture, '**') === 0) {
+        // It's a method header (starts with **)
+        if ($tabItOut) {
+            $capStrs = explode("#", $Capture);
+            var_dump($capStrs);
+
+            // Colour on?
+            if ($colourOutput && $colourMethodHeaders) {
+                $output .= $methodHeaderColour;
+            }
+
+            foreach ($capStrs as $capStr)
+            {
+                $output .= $capStr."\t";
+            }
+
+            // If colour on? turn it off
+            if ($colourOutput && $colourMethodHeaders) {
+                $output .= "\033[0m";
+            }
+
+            // Trim the ** used to detect method headers
+            $output = str_replace('**', '', $output);
+
+            // Trim the last tab
+            $output = rtrim($output, "\t")."\n";
+        } else {
+            // None tabbed method header
+            // Colour on?
+            echo "\nNone tabbed method header";
+            if ($colourOutput && $colourMethodHeaders) {
+                $output .= "\033[33m";
+            }
+
+            $output .= $Capture."\n";
+            // Trim the ** used to detect method headers
+            $output = str_replace('**', '', $output);
+
+            // If colour on? turn it off
+            if ($colourOutput && $colourMethodHeaders) {
+                $output .= "\033[0m";
+            }
+        }
+    } else {
+        echo "\nis default\n";
+        var_dump($Capture);
+        // Default output
+        ob_start();
+        if ($outputMethod == 'var_dump')
+        {
+            var_dump($Capture);
+        } else if ($outputMethod == 'print_r')
+        {
+            print_r($Capture);
+        }
+
+        if ($first) {
+            //echo $output;
+        } else {
+            $output = ob_get_clean();
+        }
+
+        // If colour actual output is on
+        if ($colourOutput && $colourActualOutput) {
+            $output = $actualOutputColour.$output."\033[0m";
+        }
     }
     file_put_contents($filename, $output, FILE_APPEND);
 }
+
+
+
 
 // Test arrays
 $birds = ['blue', 'tit', 'pigeon'];
@@ -147,7 +167,7 @@ $cars = ['fird', 'pergeot', 'vauxhall'];
 
 
 bwdebug("a string", 1, 1);
-//bwdebug("another string");
+bwdebug("another string");
 //bwdebug(1);
 //bwdebug("", 1, 1);
 //bwdebug($birds, 1, 1);
@@ -166,7 +186,7 @@ genRandHtml(1);
 
 // test function
 function genRandHtml($num_lines) {
-    bwdebug("**".dirname(__FILE__)."#".basename(__FILE__)."#".__CLASS__."#->".__FUNCTION__."():".__LINE__);
+    bwdebug("**".dirname(__FILE__)."#".basename(__FILE__)."#".__FUNCTION__."():".__LINE__);
     //bwdebug("sakldjh");
     $lines = [];
     for ($i = 0; $i < $num_lines; $i++) {
@@ -183,7 +203,7 @@ function genRandHtml($num_lines) {
                 break;
         }
     }
-    bwdebug($lines);
+    //bwdebug($lines);
     //var_dump($lines);    return implode("\n", $lines);
     //return $lines;
 }
