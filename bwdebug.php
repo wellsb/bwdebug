@@ -5,6 +5,7 @@ TODO
     $first outputs it's variable to the console (twice actually) instead of the file
     implement $blankLinesBeforeAllOutputs - timer?
         blankLinesBeforeAllOutputs kind of implemented
+            Why is $blankLinesBeforeAllOutputs outputting loads of lines before a method header?
 */
 
 /**
@@ -25,19 +26,24 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
     // -Config------
 
+        // output debug files
+        $defaultOutputfile = 'output.log';
+        $secondOutputFile = 'output2.log';
+
         // Output method var_dump || print_r
             $outputMethod = 'var_dump';
             //$outputMethod = 'print_r';
 
         // Tab out method headers
-            $tabOutMethodHeaders = 1;
+            $tabOutMethodHeaders = true;
 
         // Start each capture with a random number
             $genRandNumberForStartMarker = 1;
 
         // Blank lines before output
-            $blankLinesBetweenOutputs = 0;
-            $blankLinesBeforeAllOutputs = 4;
+            $blankLinesBetweenOutputs = 1;
+            $blankLinesBeforeAllOutputs = 3;
+                $allOuputTimeOut = 3;
 
         // Try to output coloured outputs
             $colourOutput = true;
@@ -50,13 +56,16 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
         // Debug to raw $Capture to StdOut
             $debugToStdOut = 0;
+
+        // State file
+            $stateFile = 'state.json';
     // -------------
 
     // Work out what file to send this output
     if ($File == 1) {
-        $filename = 'output.log';
+        $filename = $defaultOutputfile;
     } else {
-        $filename = 'output2.log';
+        $filename = $secondOutputFile;
     }
 
     // Debug to console
@@ -65,29 +74,20 @@ function bwdebug($Capture, $File = 1, $first = false) {
     }
 
     $output = "";
+    $state = readState($stateFile);
 
-    // If set insert blank lines
+    // Do some blank lines before all outputs
     if ($blankLinesBeforeAllOutputs > 0) {
-        $started = time();
-        var_dump($started);
-        //var_dump()
-        if ($started < ($started + 3)) {
-            echo "\nis within 2 seconds\n";
-            for ($i = 0; $i <= $blankLinesBeforeAllOutputs; $i++) {
+        $timeElapsed = time() - $state->lastStarted;
+
+        if ($timeElapsed >= $allOuputTimeOut) {
+            var_dump($timeElapsed);
+            for ($i = 1; $i <= $blankLinesBeforeAllOutputs; $i++) {
                 $output .= "\n";
             }
         }
     }
-
-    // If set insert blank lines
-    if ($blankLinesBetweenOutputs > 0) {
-    echo "\nBetweenSet\n";
-        for ($i = 0; $i <= $blankLinesBetweenOutputs; $i++) {
-            $output .= "66\n";
-        }
-    } else {
-        "what";
-    }
+    $state->lastStarted = time();
 
     if ($first) {
         // Turn the colour on if needed
@@ -150,8 +150,6 @@ function bwdebug($Capture, $File = 1, $first = false) {
             }
         }
     } else {
-        echo "\nis default\n";
-        var_dump($Capture);
         // Default output
         ob_start();
         if ($outputMethod == 'var_dump')
@@ -162,9 +160,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
             print_r($Capture);
         }
 
-        if ($first) {
-            //echo $output;
-        } else {
+        if (!$first) {
             $output = ob_get_clean();
         }
 
@@ -173,11 +169,44 @@ function bwdebug($Capture, $File = 1, $first = false) {
             $output = $actualOutputColour.$output."\033[0m";
         }
     }
+
+    // If set insert blank lines
+    if ($blankLinesBetweenOutputs > 0) {
+            for ($i = 1; $i <= $blankLinesBetweenOutputs; $i++) {
+                $output .= "\n";
+            }
+        }
+
     file_put_contents($filename, $output, FILE_APPEND);
+    saveState($stateFile, $state);
 }
 
+function saveState($stateFile, $state) {
+    // Save state to file
+    if (!file_put_contents($stateFile, json_encode($state))) {
+        echo "\nERROR: Could not write state file";
+        return true;
+    } else {
+        return false;
+    }
+}
 
+function readState($stateFile) {
+    // Read state data from the file
+    if (file_exists($stateFile)) {
+        if (!$state = file_get_contents($stateFile)) {
+            echo "\nERROR: Could not read from state file";
+            return false;
+        } else {
+            $state = json_decode($state);
+        }
+    } else {
+        echo "\nERROR: State file missing on read";
+        return false;
+    }
 
+    return $state;
+}
 
 // Test arrays
 $birds = ['blue', 'tit', 'pigeon'];
