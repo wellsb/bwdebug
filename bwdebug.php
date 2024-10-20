@@ -3,9 +3,6 @@
 /*
 TODO
     $first outputs it's variable to the console (twice actually) instead of the file
-    implement $blankLinesBeforeAllOutputs - timer?
-        blankLinesBeforeAllOutputs kind of implemented
-            Why is $blankLinesBeforeAllOutputs outputting loads of lines before a method header?
 */
 
 /**
@@ -18,11 +15,11 @@ TODO
  * output "a string" to File 1 with header  = bwdebug("a string", 1, 1);
  * output int(1) to default file            = bwdebug(1);
  *
- * @param mixed $Capture The variable to dump.
- * @param int $File The file number to write to (1 or 2). Defaults to 1.
+ * @param mixed $capture The variable to dump.
+ * @param int $file The file number to write to (1 or 2). Defaults to 1.
  * @param bool $first Whether this is the first entry in the log file (output debug header). Defaults to false.
  */
-function bwdebug($Capture, $File = 1, $first = false) {
+function bwdebug($capture, $file = 1, $first = false) {
 
     // -Config------
 
@@ -42,7 +39,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
         // Blank lines before output
             $blankLinesBetweenOutputs = 1;
-            $blankLinesBeforeAllOutputs = 3;
+            $blankLinesBeforeAllOutputs = 2;
                 $allOuputTimeOut = 3;
 
         // Try to output coloured outputs
@@ -62,7 +59,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
     // -------------
 
     // Work out what file to send this output
-    if ($File == 1) {
+    if ($file == 1) {
         $filename = $defaultOutputfile;
     } else {
         $filename = $secondOutputFile;
@@ -70,7 +67,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
 
     // Debug to console
     if ($debugToStdOut) {
-        var_dump($Capture);
+        var_dump($capture);
     }
 
     $output = "";
@@ -107,10 +104,10 @@ function bwdebug($Capture, $File = 1, $first = false) {
     }
 
     // Is not first (could be method header or normal dump)
-    if (is_string($Capture) && strpos($Capture, '**') === 0) {
+    if (is_string($capture) && strpos($capture, '**') === 0) {
         // It's a method header (starts with **)
         if ($tabOutMethodHeaders) {
-            $capStrs = explode("#", $Capture);
+            $capStrs = explode("#", $capture);
 
             // Colour on?
             if ($colourOutput && $colourMethodHeaders) {
@@ -140,7 +137,7 @@ function bwdebug($Capture, $File = 1, $first = false) {
                 $output .= "\033[33m";
             }
 
-            $output .= $Capture."\n";
+            $output .= $capture."\n";
             // Trim the ** used to detect method headers
             $output = str_replace('**', '', $output);
 
@@ -154,10 +151,10 @@ function bwdebug($Capture, $File = 1, $first = false) {
         ob_start();
         if ($outputMethod == 'var_dump')
         {
-            var_dump($Capture);
+            var_dump($capture);
         } else if ($outputMethod == 'print_r')
         {
-            print_r($Capture);
+            print_r($capture);
         }
 
         if (!$first) {
