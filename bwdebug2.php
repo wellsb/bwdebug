@@ -3,6 +3,9 @@
 /*
 TODO
     $first outputs it's variable to the console (twice actually) instead of the file
+
+    var_dump prettyfier;
+    You can switch off Xdebug-var_dump()-overloading by setting xdebug.overload_var_dump to false. Then you can use var_dump() when you don't need the additional HTML-formatting and xdebug_var_dump() when you require a fully formatted debug output.
 */
 
 /**
@@ -19,17 +22,21 @@ TODO
  * @param int $file The file number to write to (1 or 2). Defaults to 1.
  * @param bool $first Whether this is the first entry in the log file (output debug header). Defaults to false.
  */
-function bwdebug($capture, $file = 1, $first = false) {
-
+function bwdebug($capture, int $file = 1, bool $first = false) {
     // -Config------
 
         // output debug files
-        $defaultOutputfile = 'output.log';
-        $secondOutputFile = 'output2.log';
+        //$defaultOutputFile = '/var/www/bwdebug2/logs/output.log';
+        //$defaultOutputFile = '/var/www/bwdebug2/logs/output.log';
+        $defaultOutputFile = '/media/170/html/dev/bwdebug2/logs/output.log';
+        $secondOutputFile = '/media/170/html/dev/bwdebug2/logs/output2.log';
 
-        // Output method var_dump || print_r
+        // Output method var_dump || print_r || var_export
             $outputMethod = 'var_dump';
+				$stripTagsFromVarDumpOutput = false;
+                ini_set("xdebug.overload_var_dump", "off");
             //$outputMethod = 'print_r';
+			//$outputMethod = 'var_export';
 
         // Tab out method headers
             $tabOutMethodHeaders = true;
@@ -60,7 +67,7 @@ function bwdebug($capture, $file = 1, $first = false) {
 
     // Work out what file to send this output
     if ($file == 1) {
-        $filename = $defaultOutputfile;
+        $filename = $defaultOutputFile;
     } else {
         $filename = $secondOutputFile;
     }
@@ -72,13 +79,14 @@ function bwdebug($capture, $file = 1, $first = false) {
 
     $output = "";
     $state = readState($stateFile);
+	//var_dump($state);
 
     // Do some blank lines before all outputs
     if ($blankLinesBeforeAllOutputs > 0) {
         $timeElapsed = time() - $state->lastStarted;
 
         if ($timeElapsed >= $allOuputTimeOut) {
-            var_dump($timeElapsed);
+            //var_dump($timeElapsed);
             for ($i = 1; $i <= $blankLinesBeforeAllOutputs; $i++) {
                 $output .= "\n";
             }
@@ -86,6 +94,9 @@ function bwdebug($capture, $file = 1, $first = false) {
     }
     $state->lastStarted = time();
 
+
+
+    // Is not first (could be method header or normal dump)
     if ($first) {
         // Turn the colour on if needed
         if ($colourOutput && $colourDebugHeaders) {
@@ -101,10 +112,7 @@ function bwdebug($capture, $file = 1, $first = false) {
         if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
-    }
-
-    // Is not first (could be method header or normal dump)
-    if (is_string($capture) && strpos($capture, '**') === 0) {
+    } else if (is_string($capture) && strpos($capture, '**') === 0) {
         // It's a method header (starts with **)
         if ($tabOutMethodHeaders) {
             $capStrs = explode("#", $capture);
@@ -155,6 +163,10 @@ function bwdebug($capture, $file = 1, $first = false) {
         } else if ($outputMethod == 'print_r')
         {
             print_r($capture);
+        } else if ($outputMethod == 'var_export')
+        {
+            //echo "var_export";
+            var_export($capture);
         }
 
         if (!$first) {
@@ -172,7 +184,12 @@ function bwdebug($capture, $file = 1, $first = false) {
             for ($i = 1; $i <= $blankLinesBetweenOutputs; $i++) {
                 $output .= "\n";
             }
-        }
+	}
+
+	if ($outputMethod == 'var_dump' && $stripTagsFromVarDumpOutput) {
+        //$output = stripos('media/170/html/dev/bwdebug2/bwdebug2.php:158:', $output);
+		$output = strip_tags($output);
+	}
 
     file_put_contents($filename, $output, FILE_APPEND);
     saveState($stateFile, $state);
@@ -204,54 +221,5 @@ function readState($stateFile) {
 
     return $state;
 }
-
-// Test arrays
-$birds = ['blue', 'tit', 'pigeon'];
-$fruit = ['apple', 'bannana', 'pear'];
-$cars = ['fird', 'pergeot', 'vauxhall'];
-
-
-bwdebug("a string", 1, 1);
-bwdebug("another string");
-bwdebug(1);
-//bwdebug("", 1, 1);
-//bwdebug($birds, 1, 1);
-//bwdebug(["fruit", $fruit], 2);
-//bwdebug($cars, 2);
-//bwdebug($birds, 2, true);
-//bwdebug (dirname(__FILE__)."#".basename(__FILE__)."#".__FUNCTION__);
-
-genRandHtml(1);
-
-// while (true)
-// {
-//     file_put_contents('output.log', genRandHtml(10), FILE_APPEND);
-//     sleep(2);
-// }
-
-// test function
-function genRandHtml($num_lines) {
-    bwdebug("**".dirname(__FILE__)."#".basename(__FILE__)."#".__FUNCTION__."():".__LINE__);
-    //bwdebug("sakldjh");
-    $lines = [];
-    for ($i = 0; $i < $num_lines; $i++) {
-        $random_element = rand(1, 3);
-        switch ($random_element) {
-            case 1:
-                $lines[] =  "<h1>This is a random heading</h1>";
-                break;
-            case 2:
-                $lines[] = "<p>This is a random paragraph</p>";
-                break;
-            case 3:
-                $lines[] = "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>";
-                break;
-        }
-    }
-    //bwdebug($lines);
-    //var_dump($lines);    return implode("\n", $lines);
-    //return $lines;
-}
-
 
 ?>
