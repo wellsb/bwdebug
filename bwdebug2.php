@@ -14,8 +14,11 @@ function bwdebug_get_config(): array {
         'second_output_file_name' => 'output2.log',
         'state_file_name' => 'state.json',
 
+        // --- dev ---
+        'run_tests' => true,
+
         // --- Output Formatting ---
-        'output_method' => 'print_r', // 'var_dump', 'print_r', 'var_export'
+        'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
         'strip_tags_from_var_dump' => true, // Only applies if output_method is 'var_dump'
         'tab_out_method_headers' => true,
         'gen_rand_number_for_start_marker' => true,
@@ -337,8 +340,8 @@ function bwdebug(mixed $capture, int $fileNum = 1, bool $isFirstEntry = false): 
 
 // --- Test Data ---
 $birds = ['blue', 'tit', 'pigeon', 'nested' => ['robin', 'sparrow']];
-$fruit = ['apple', 'banana', 'pear']; // Corrected typo
-$cars = ['ford', 'peugeot', 'vauxhall']; // Corrected typos
+$fruit = ['apple', 'banana', 'pear'];
+$cars = ['ford', 'peugeot', 'vauxhall'];
 
 // --- Test Function ---
 function genRandHtml(int $num_lines): array { // Return array as intended by commented out code
@@ -363,32 +366,35 @@ function genRandHtml(int $num_lines): array { // Return array as intended by com
 
 
 // --- Example Calls ---
-echo "Running bwdebug examples...\n"; // Indicate tests are running
+$config = bwdebug_get_config();
+if ($config['run_tests'] == 1) {
+    echo "Running bwdebug examples...\n";
 
-// Example 1: Simple string with header
-bwdebug("Starting debug session...", 1, true);
+    // Example 1: Simple string with header
+    bwdebug("Starting debug session...", 1, true);
 
-// Example 2: Simple array
-bwdebug($birds);
+    // Example 2: Simple array
+    bwdebug($birds);
 
-// Example 3: Labelled array to file 2
-bwdebug(["Current Fruit", $fruit], 2);
+    // Example 3: Labelled array to file 2
+    bwdebug(["Current Fruit", $fruit], 2);
 
-// Example 4: Method header for test function
-// (genRandHtml calls bwdebug internally for its header)
-$randomHtmlArray = genRandHtml(2);
+    // Example 4: Method header for test function
+    // (genRandHtml calls bwdebug internally for its header)
+    $randomHtmlArray = genRandHtml(2);
 
-// Example 5: Another variable dump to file 1
-bwdebug($cars);
+    // Example 5: Another variable dump to file 1
+    bwdebug($cars);
 
-// Example 6: Integer
-bwdebug(12345);
+    // Example 6: Integer
+    bwdebug(12345);
 
-// Example 7: Output to file 2 with header
-bwdebug("This goes to file 2, first entry.", 2, true);
-bwdebug($cars, 2);
+    // Example 7: Output to file 2 with header
+    bwdebug("This goes to file 2, first entry.", 2, true);
+    bwdebug($cars, 2);
 
 
-echo "bwdebug examples finished. Check log files.\n";
+    echo "bwdebug examples finished. Check log files.\n";
+}
 
 ?>
