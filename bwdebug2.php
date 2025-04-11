@@ -4,13 +4,15 @@
 TODO
     $first outputs it's variable to the console (twice actually) instead of the file
 
-    var_dump prettyfier;
-    You can switch off Xdebug-var_dump()-overloading by setting xdebug.overload_var_dump to false. Then you can use var_dump() when you don't need the additional HTML-formatting and xdebug_var_dump() when you require a fully formatted debug output.
+    look into;
+        xdebug.cli_color = 0
+        xdebug.overload_var_dump
+
 */
 
 /**
  * Debug function to dump variables to a log file.
- * 
+ *
  * output "some string" to default file     = bwdebug("some string");
  * output labelled array to default file    = bwdebug(["fruit", $fruit]);
  * output "a string" to file 2 with header  = bwdebug("a string", 2, 1);
@@ -23,47 +25,57 @@ TODO
  * @param bool $first Whether this is the first entry in the log file (output debug header). Defaults to false.
  */
 function bwdebug($capture, int $file = 1, bool $first = false) {
+
     // -Config------
 
-        // output debug files
-        //$defaultOutputFile = '/var/www/bwdebug2/logs/output.log';
-        //$defaultOutputFile = '/var/www/bwdebug2/logs/output.log';
-        $defaultOutputFile = '/media/170/html/dev/bwdebug2/logs/output.log';
-        $secondOutputFile = '/media/170/html/dev/bwdebug2/logs/output2.log';
+    // output debug files
+    // work
+        //$defaultOutputFile = '/var/www/bwtools/logs/output.log';
+        //$secondOutputFile = '/var/www/bwtools/logs/output2.log';
+        //$stateFile = '/var/www/bwtools/state.json';
+    // dev
+        $defaultOutputFile = '/var/www/html/dev/bwdebug2/logs/output.log';
+        $secondOutputFile = '/var/www/html/dev/bwdebug2/logs/output2.log';
+        $stateFile = '/var/www/html/dev/bwdebug2/state.json';
 
-        // Output method var_dump || print_r || var_export
-            $outputMethod = 'var_dump';
-				$stripTagsFromVarDumpOutput = false;
-                ini_set("xdebug.overload_var_dump", "off");
-            //$outputMethod = 'print_r';
-			//$outputMethod = 'var_export';
+    // Output method var_dump || print_r || var_export
+    //$outputMethod = 'var_dump';
+    $stripTagsFromVarDumpOutput = true;
+    $outputMethod = 'print_r';
+    //$outputMethod = 'var_export';
 
-        // Tab out method headers
-            $tabOutMethodHeaders = true;
+    // Tab out method headers
+    $tabOutMethodHeaders = true;
 
-        // Start each capture with a random number
-            $genRandNumberForStartMarker = 1;
+    // Start each capture with a random number
+    $genRandNumberForStartMarker = 1;
 
-        // Blank lines before output
-            $blankLinesBetweenOutputs = 1;
-            $blankLinesBeforeAllOutputs = 2;
-                $allOuputTimeOut = 3;
+    // Blank lines before output
+    $blankLinesBetweenOutputs	= 1;	// lines or 0 to disable
+    $blankLinesBeforeAllOutputs = 5;	// lines or 0 to disable
+    $allOutputTimeOut		= 3;	// seconds
 
-        // Try to output coloured outputs
-            $colourOutput = true;
-                $colourDebugHeaders = true;
-                    $debugHeaderColor = "\033[32m";
-                $colourMethodHeaders = true;
-                    $methodHeaderColour = "\033[33m";
-                $colourActualOutput = true;
-                    $actualOutputColour = "\033[36m";
+    // Try to output coloured outputs
+    $colourOutput = 1;
+    $colourDebugHeaders = true;
+    $debugHeaderColor = "\033[32m";
+    $colourMethodHeaders = true;
+    $methodHeaderColour = "\033[33m";
+    $colourActualOutput = true;
+    $actualOutputColour = "\033[36m";
 
-        // Debug to raw $Capture to StdOut
-            $debugToStdOut = 0;
+    // Debug to raw $Capture to StdOut
+    $debugToStdOut = 0;
 
-        // State file
-            $stateFile = 'state.json';
+    // Overide xdebug.var_'s
+    $overrideXdebugIni = true;
+
     // -------------
+
+    if ($overrideXdebugIni) {
+        ini_set('xdebug.var_display_max_depth', 15);
+        ini_set('xdebug.var_display_max_children', 100);
+    }
 
     // Work out what file to send this output
     if ($file == 1) {
@@ -79,14 +91,14 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
 
     $output = "";
     $state = readState($stateFile);
-	//var_dump($state);
+    //var_dump($state);
 
     // Do some blank lines before all outputs
     if ($blankLinesBeforeAllOutputs > 0) {
         $timeElapsed = time() - $state->lastStarted;
 
-        if ($timeElapsed >= $allOuputTimeOut) {
-            //var_dump($timeElapsed);
+        if ($timeElapsed >= $allOutputTimeOut) {
+            $output .= "\n: ".$timeElapsed;
             for ($i = 1; $i <= $blankLinesBeforeAllOutputs; $i++) {
                 $output .= "\n";
             }
@@ -94,9 +106,6 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
     }
     $state->lastStarted = time();
 
-
-
-    // Is not first (could be method header or normal dump)
     if ($first) {
         // Turn the colour on if needed
         if ($colourOutput && $colourDebugHeaders) {
@@ -112,7 +121,10 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
         if ($colourOutput && $colourDebugHeaders) {
             $output .= "\033[0m";
         }
-    } else if (is_string($capture) && strpos($capture, '**') === 0) {
+    }
+
+    // Is not first (could be method header or normal dump)
+    if (is_string($capture) && strpos($capture, '**') === 0) {
         // It's a method header (starts with **)
         if ($tabOutMethodHeaders) {
             $capStrs = explode("#", $capture);
@@ -140,7 +152,7 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
         } else {
             // None tabbed method header
             // Colour on?
-            echo "\nNone tabbed method header";
+            //echo "\nNone tabbed method header";
             if ($colourOutput && $colourMethodHeaders) {
                 $output .= "\033[33m";
             }
@@ -148,6 +160,8 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
             $output .= $capture."\n";
             // Trim the ** used to detect method headers
             $output = str_replace('**', '', $output);
+            // Replace # for something else
+            $output = str_replace('#', ' ', $output);
 
             // If colour on? turn it off
             if ($colourOutput && $colourMethodHeaders) {
@@ -163,10 +177,6 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
         } else if ($outputMethod == 'print_r')
         {
             print_r($capture);
-        } else if ($outputMethod == 'var_export')
-        {
-            //echo "var_export";
-            var_export($capture);
         }
 
         if (!$first) {
@@ -181,15 +191,16 @@ function bwdebug($capture, int $file = 1, bool $first = false) {
 
     // If set insert blank lines
     if ($blankLinesBetweenOutputs > 0) {
-            for ($i = 1; $i <= $blankLinesBetweenOutputs; $i++) {
-                $output .= "\n";
-            }
-	}
+        for ($i = 1; $i <= $blankLinesBetweenOutputs; $i++) {
+            $output .= "\n";
+        }
+    }
 
-	if ($outputMethod == 'var_dump' && $stripTagsFromVarDumpOutput) {
-        //$output = stripos('media/170/html/dev/bwdebug2/bwdebug2.php:158:', $output);
-		$output = strip_tags($output);
-	}
+    if ($outputMethod == 'var_dump' && $stripTagsFromVarDumpOutput) {
+        $output = strip_tags($output);
+        $output = str_replace('=&gt; ', '=> ', $output);
+        $output = str_replace('&quot;', '"', $output);
+    }
 
     file_put_contents($filename, $output, FILE_APPEND);
     saveState($stateFile, $state);
@@ -221,5 +232,55 @@ function readState($stateFile) {
 
     return $state;
 }
+
+// Test arrays
+$birds = ['blue', 'tit', 'pigeon'];
+$fruit = ['apple', 'bannana', 'pear'];
+$cars = ['fird', 'pergeot', 'vauxhall'];
+
+
+//bwdebug("a string", 1, 1);
+//bwdebug("another string");
+bwdebug($birds);
+//bwdebug(1);
+//bwdebug("", 1, 1);
+//bwdebug($birds, 1, 1);
+//bwdebug(["fruit", $fruit], 2);
+//bwdebug($cars, 2);
+//bwdebug($birds, 2, true);
+//bwdebug (dirname(__FILE__)."#".basename(__FILE__)."#".__FUNCTION__);
+
+genRandHtml(1);
+
+// while (true)
+// {
+//     file_put_contents('output.log', genRandHtml(10), FILE_APPEND);
+//     sleep(2);
+// }
+
+// test function
+function genRandHtml($num_lines) {
+    bwdebug("**".dirname(__FILE__)."#".basename(__FILE__)."#".__FUNCTION__."():".__LINE__);
+    //bwdebug("sakldjh");
+    $lines = [];
+    for ($i = 0; $i < $num_lines; $i++) {
+        $random_element = rand(1, 3);
+        switch ($random_element) {
+            case 1:
+                $lines[] =  "<h1>This is a random heading</h1>";
+                break;
+            case 2:
+                $lines[] = "<p>This is a random paragraph</p>";
+                break;
+            case 3:
+                $lines[] = "<ul><li>This is a random list item</li><li>This is another random list item</li></ul>";
+                break;
+        }
+    }
+    //bwdebug($lines);
+    //var_dump($lines);    return implode("\n", $lines);
+    //return $lines;
+}
+
 
 ?>
