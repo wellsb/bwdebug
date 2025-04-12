@@ -8,9 +8,8 @@ bwdebug('test script one directory deep');
 
 genRandHtml2(1);
 
-function genRandHtml2(int $num_lines): array { // Return array as intended by commented out code
-    // Use bwdebug to mark entry into this test function
-    bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
+function genRandHtml2(int $num_lines): array
+{bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
 
     $lines = [];
     $elements = [
@@ -27,3 +26,5 @@ function genRandHtml2(int $num_lines): array { // Return array as intended by co
     bwdebug(['Generated HTML Lines', $lines]);
     return $lines;
 }
+
+bwdebug('After function call');

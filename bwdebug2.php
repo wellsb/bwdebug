@@ -6,7 +6,7 @@
  * =============================================================================
  * Centralized configuration for the bwdebug function.
  */
-function bwdebug_get_config(): array {
+function get_config(): array { // Renamed
     return [
         // --- File Paths ---
         'log_dir' => __DIR__ . '/logs', // Base directory for logs
@@ -15,13 +15,15 @@ function bwdebug_get_config(): array {
         'state_file_name' => 'state.json',
 
         // --- dev ---
-        'run_tests' => true,
+        'run_tests' => false,
 
         // --- Output Formatting ---
         'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
         'strip_tags_from_var_dump' => true, // Only applies if output_method is 'var_dump'
+        'suppress_native_location' => true, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
         'tab_out_method_headers' => true,
         'gen_rand_number_for_start_marker' => true,
+        'show_caller_info' => true, // Control display of caller file/line
 
         // --- Spacing & Timing ---
         'blank_lines_between_outputs' => 1, // lines or 0 to disable
@@ -29,13 +31,15 @@ function bwdebug_get_config(): array {
         'all_output_timeout_seconds' => 3, // Minimum seconds between "before_all" spacing
 
         // --- Colorization (ANSI Escape Codes) ---
-        'color_output' => true, // Master switch for colors
+        'color_output' => true, // Master switch for colors - RE-ENABLED
         'color_debug_headers' => true,
         'debug_header_color' => "\033[32m", // Green
         'color_method_headers' => true,
         'method_header_color' => "\033[33m", // Yellow
         'color_actual_output' => true,
         'actual_output_color' => "\033[36m", // Cyan
+        'color_caller_info' => true, // Control color of caller info
+        'caller_info_color' => "\033[1;97;40m", // Bright White text on Black BG
         'color_reset' => "\033[0m",
 
         // --- Debugging & Overrides ---
@@ -61,7 +65,7 @@ function bwdebug_get_config(): array {
  * @param string $stateFile Path to the state file.
  * @return object The state object.
  */
-function bwdebug_read_state(string $stateFile): object {
+function read_state(string $stateFile): object { // Renamed
     $defaultState = (object)['lastStarted' => 0];
 
     // Ensure the directory exists
@@ -75,8 +79,7 @@ function bwdebug_read_state(string $stateFile): object {
 
     if (!file_exists($stateFile)) {
         error_log("BWDEBUG INFO: State file missing, creating default: " . $stateFile);
-        // Attempt to save default, but return default state regardless
-        bwdebug_save_state($stateFile, $defaultState);
+        save_state($stateFile, $defaultState); // Updated call
         return $defaultState;
     }
 
@@ -87,15 +90,12 @@ function bwdebug_read_state(string $stateFile): object {
     }
 
     $state = json_decode($stateJson);
-    if (json_last_error() !== JSON_ERROR_NONE || empty($state)) {
-        error_log("BWDEBUG ERROR: Invalid JSON or empty state file: " . $stateFile . " - JSON Error: " . json_last_error_msg());
-        // Optionally, try to save a default state here if the file is corrupt
-        // bwdebug_save_state($stateFile, $defaultState);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_object($state)) {
+        error_log("BWDEBUG ERROR: Invalid JSON or not an object in state file: " . $stateFile . " - JSON Error: " . json_last_error_msg());
         return $defaultState;
     }
 
-    // Ensure essential properties exist
-    if (!isset($state->lastStarted)) {
+    if (!property_exists($state, 'lastStarted')) {
         $state->lastStarted = 0;
     }
 
@@ -109,14 +109,14 @@ function bwdebug_read_state(string $stateFile): object {
  * @param object $state The state object to save.
  * @return bool True on success, false on failure.
  */
-function bwdebug_save_state(string $stateFile, object $state): bool {
-    $stateJson = json_encode($state, JSON_PRETTY_PRINT); // Add pretty print for readability
+function save_state(string $stateFile, object $state): bool { // Renamed
+    $stateJson = json_encode($state, JSON_PRETTY_PRINT);
     if ($stateJson === false) {
         error_log("BWDEBUG ERROR: Could not encode state to JSON. Error: " . json_last_error_msg());
         return false;
     }
 
-    if (file_put_contents($stateFile, $stateJson) === false) {
+    if (file_put_contents($stateFile, $stateJson, LOCK_EX) === false) {
         error_log("BWDEBUG ERROR: Could not write state file: " . $stateFile);
         return false;
     }
@@ -135,9 +135,10 @@ function bwdebug_save_state(string $stateFile, object $state): bool {
  * @param array $config The configuration array.
  * @return string The formatted header.
  */
-function bwdebug_format_debug_header(array $config): string {
+function format_debug_header(array $config): string { // Renamed
     $output = "";
     $color = $config['color_output'] && $config['color_debug_headers'];
+    $resetCode = $config['color_reset'] ?? "\033[0m";
 
     if ($color) {
         $output .= $config['debug_header_color'];
@@ -145,14 +146,14 @@ function bwdebug_format_debug_header(array $config): string {
 
     $output .= "-";
     if ($config['gen_rand_number_for_start_marker']) {
-        $output .= str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT);
+        $output .= str_pad((string)rand(0, 99), 2, '0', STR_PAD_LEFT);
     }
-    $output .= "-----" . date('H:i:s') . "------------\n";
+    $output .= "-----" . date('H:i:s') . "------------";
 
     if ($color) {
-        $output .= $config['color_reset'];
+        $output .= $resetCode; // Add reset ONLY if color was added
     }
-    return $output;
+    return $output . "\n"; // Add newline at the very end
 }
 
 /**
@@ -162,10 +163,11 @@ function bwdebug_format_debug_header(array $config): string {
  * @param array $config The configuration array.
  * @return string The formatted method header.
  */
-function bwdebug_format_method_header(string $capture, array $config): string {
+function format_method_header(string $capture, array $config): string { // Renamed
     $output = "";
     $color = $config['color_output'] && $config['color_method_headers'];
-    $cleanedCapture = str_replace('**', '', $capture); // Remove marker
+    $resetCode = $config['color_reset'] ?? "\033[0m";
+    $cleanedCapture = str_replace('**', '', $capture);
 
     if ($color) {
         $output .= $config['method_header_color'];
@@ -174,52 +176,88 @@ function bwdebug_format_method_header(string $capture, array $config): string {
     if ($config['tab_out_method_headers']) {
         $parts = explode("#", $cleanedCapture);
         $output .= implode("\t", $parts);
-        $output = rtrim($output, "\t"); // Remove trailing tab if any
+        $output = rtrim($output, "\t");
     } else {
         $output .= str_replace('#', ' ', $cleanedCapture);
     }
 
     if ($color) {
-        $output .= $config['color_reset'];
+        $output .= $resetCode; // Add reset ONLY if color was added
     }
 
-    return $output . "\n";
+    return $output . "\n"; // Add newline at the very end
 }
 
 /**
- * Formats the variable dump output.
+ * Formats the variable dump output, including caller info.
  *
  * @param mixed $capture The variable to dump.
  * @param array $config The configuration array.
+ * @param string|null $callerFile The file where bwdebug was called.
+ * @param int|null $callerLine The line where bwdebug was called.
  * @return string The formatted variable dump.
  */
-function bwdebug_format_variable_dump(mixed $capture, array $config): string {
+function format_variable_dump(mixed $capture, array $config, ?string $callerFile, ?int $callerLine): string { // Renamed
+    $output = "";
+    $originalOutputMethod = $config['output_method'];
+    $useOutputMethod = $originalOutputMethod;
+    $resetCode = $config['color_reset'] ?? "\033[0m";
+    $callerInfoLine = ""; // Store caller info separately
+
+    // --- Prepare Caller Info Line ---
+    $conditionResult = ($config['show_caller_info'] ?? false) && $callerFile !== null && $callerLine !== null;
+    if ($conditionResult) {
+        $callerInfoText = $callerFile . ':' . $callerLine . ":";
+        if ($config['color_output'] && $config['color_caller_info']) {
+            // Build the line: Reset + Color + Text + NEWLINE + Reset
+            $callerInfoLine = $resetCode
+                . $config['caller_info_color'] . $callerInfoText . "\n" . $resetCode;
+        } else {
+            // Build the line: Just Text + NEWLINE (NO ANSI codes if color_output is false)
+            $callerInfoLine = $callerInfoText . "\n";
+        }
+    } else {
+        $callerInfoLine = ""; // Ensure it's empty if condition fails
+    }
+
+    // --- Determine dump method ---
+    if ($originalOutputMethod === 'var_dump' && $config['suppress_native_location'] === true) {
+        $useOutputMethod = 'print_r'; // Use print_r to avoid var_dump's location info
+    }
+
+    // --- Dump Variable ---
     ob_start();
-    switch ($config['output_method']) {
+    switch ($useOutputMethod) {
+        case 'var_export': var_export($capture); break;
+        case 'print_r':    print_r($capture);    break;
         case 'var_dump':
-            var_dump($capture);
-            break;
-        case 'var_export':
-            var_export($capture); // Note: var_export might be better sometimes
-            break;
-        case 'print_r':
-        default:
-            print_r($capture);
-            break;
+        default:           var_dump($capture);   break;
     }
-    $output = ob_get_clean();
+    $dumpOutput = ob_get_clean();
 
-    // Apply post-processing specific to output methods
-    if ($config['output_method'] === 'var_dump' && $config['strip_tags_from_var_dump']) {
-        $output = strip_tags($output);
-        // Decode common HTML entities that might appear
-        $output = html_entity_decode($output, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    // --- Post-processing ---
+    if ($originalOutputMethod === 'var_dump' && $config['strip_tags_from_var_dump']) {
+        $dumpOutput = strip_tags($dumpOutput);
+        $dumpOutput = html_entity_decode($dumpOutput, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
-    // Apply color if configured
+    // *** Explicitly trim the dump output to remove leading/trailing whitespace/newlines ***
+    $dumpOutput = trim($dumpOutput);
+
+    // --- Build Final Output ---
+    $output = $callerInfoLine; // Start with the caller info line (includes \n)
+
+    // Append dump output (colored or not)
     if ($config['color_output'] && $config['color_actual_output']) {
-        $output = $config['actual_output_color'] . $output . $config['color_reset'];
+        // Start with color, add trimmed dump, end with reset
+        $output .= $config['actual_output_color'] . $dumpOutput . $resetCode;
+    } else {
+        // Just append trimmed dump output
+        $output .= $dumpOutput;
     }
+
+    // *** Add a single guaranteed newline at the very end ***
+    $output .= "\n";
 
     return $output;
 }
@@ -247,14 +285,41 @@ function bwdebug_format_variable_dump(mixed $capture, array $config): string {
  * @param bool $isFirstEntry Whether this is the first entry (outputs debug header). Defaults to false.
  */
 function bwdebug(mixed $capture, int $fileNum = 1, bool $isFirstEntry = false): void {
-    $config = bwdebug_get_config();
+    $config = get_config(); // Updated call
     $stateFile = $config['log_dir'] . '/' . $config['state_file_name'];
-    $state = bwdebug_read_state($stateFile);
+    $state = read_state($stateFile); // Updated call
+
+    // --- Get Caller Information ---
+    $callerFile = null;
+    $callerLine = null;
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+    // *** ADJUSTED LOGIC: Check frame [1] first, then fall back to [0] ***
+    $callerFrame = null;
+    if (isset($backtrace[1])) {
+        // Called from within a function/method, use frame 1
+        $callerFrame = $backtrace[1];
+    } elseif (isset($backtrace[0])) {
+        // Potentially called from global scope, use frame 0
+        // Check if 'file' and 'line' exist in frame 0
+        if (isset($backtrace[0]['file']) && isset($backtrace[0]['line'])) {
+            $callerFrame = $backtrace[0];
+        }
+    }
+
+    // Now extract info if we found a valid frame
+    if ($callerFrame !== null && isset($callerFrame['file']) && isset($callerFrame['line'])) {
+        $callerFile = $callerFrame['file'];
+        $callerLine = $callerFrame['line'];
+    } else {
+        // Log warning if caller info couldn't be determined
+        error_log("BWDEBUG WARNING: Could not determine caller file/line.");
+    }
 
     // --- Apply Xdebug Overrides ---
     if ($config['override_xdebug_ini']) {
         foreach ($config['xdebug_overrides'] as $key => $value) {
-            ini_set($key, (string)$value); // ini_set expects string value
+            ini_set($key, (string)$value);
         }
     }
 
@@ -266,9 +331,10 @@ function bwdebug(mixed $capture, int $fileNum = 1, bool $isFirstEntry = false): 
 
     // --- Debug to Standard Output ---
     if ($config['debug_to_stdout']) {
-        echo "--- BWDEBUG STDOUT ---\n";
+        $resetCode = $config['color_reset'] ?? "\033[0m";
+        echo $resetCode . "--- BWDEBUG STDOUT (" . ($callerFile ?? 'UnknownFile') . ":" . ($callerLine ?? 'UnknownLine') . ") ---\n";
         var_dump($capture);
-        echo "----------------------\n";
+        echo "----------------------\n" . $resetCode;
     }
 
     // --- Prepare Output String ---
@@ -276,125 +342,155 @@ function bwdebug(mixed $capture, int $fileNum = 1, bool $isFirstEntry = false): 
 
     // --- Handle Spacing Before All Outputs ---
     $currentTime = time();
-    $timeElapsed = $currentTime - $state->lastStarted;
+    $timeElapsed = $currentTime - ($state->lastStarted ?? 0);
     if ($config['blank_lines_before_all_outputs'] > 0 && $timeElapsed >= $config['all_output_timeout_seconds']) {
-        // $outputString .= "\n: ".$timeElapsed; // Optional: Show time elapsed
         $outputString .= str_repeat("\n", $config['blank_lines_before_all_outputs']);
     }
-    // Update lastStarted *after* checking the time elapsed
     $state->lastStarted = $currentTime;
 
 
     // --- Format Main Content ---
     $formattedContent = "";
     if ($isFirstEntry) {
-        $formattedContent = bwdebug_format_debug_header($config);
-        // When it's the first entry, we often don't want the actual $capture content,
-        // just the header. If you *do* want both, you'd append the variable dump below.
-        // For now, let's assume $isFirstEntry implies *only* the header.
-        // If you need both, remove the 'else' below and adjust logic.
+        $formattedContent = format_debug_header($config); // Updated call
+        // If you want the first entry to ALSO dump the variable, uncomment the next line:
+        // $formattedContent .= format_variable_dump($capture, $config, $callerFile, $callerLine); // Updated call
 
     } else if (is_string($capture) && strpos($capture, '**') === 0) {
-        // It's a method header
-        $formattedContent = bwdebug_format_method_header($capture, $config);
+        $formattedContent = format_method_header($capture, $config);
     } else {
-        // It's a variable dump
-        $formattedContent = bwdebug_format_variable_dump($capture, $config);
+        $formattedContent = format_variable_dump($capture, $config, $callerFile, $callerLine);
     }
 
     $outputString .= $formattedContent;
 
-
     // --- Handle Spacing Between Outputs ---
-    // Add blank lines *after* the content, before writing
     if ($config['blank_lines_between_outputs'] > 0) {
-        $outputString .= str_repeat("\n", $config['blank_lines_between_outputs']);
+        $outputString = rtrim($outputString, "\n");
+        $outputString .= str_repeat("\n", $config['blank_lines_between_outputs'] + 1);
+    } else if (substr($outputString, -1) !== "\n") { // Replaced str_ends_with for PHP 7.4 compatibility
+        $outputString .= "\n";
     }
 
     // --- Write to File ---
-    // Ensure the directory exists (might be redundant if readState already did, but safe)
     $logDir = dirname($logFilePath);
     if (!is_dir($logDir)) {
         if (!mkdir($logDir, 0775, true)) {
             error_log("BWDEBUG ERROR: Could not create log directory for writing: " . $logDir);
-            // Optionally save state even if write fails? Depends on desired behavior.
-            bwdebug_save_state($stateFile, $state);
-            return; // Stop execution for this call if dir fails
+            save_state($stateFile, $state); // Updated call
+            return;
         }
     }
 
-    if (file_put_contents($logFilePath, $outputString, FILE_APPEND | LOCK_EX) === false) { // Added LOCK_EX for safety
+    if (file_put_contents($logFilePath, $outputString, FILE_APPEND | LOCK_EX) === false) {
         error_log("BWDEBUG ERROR: Could not write to log file: " . $logFilePath);
     }
 
     // --- Save State ---
-    bwdebug_save_state($stateFile, $state);
+    if (!save_state($stateFile, $state)) {
+        error_log("BWDEBUG WARNING: Failed to save state file: " . $stateFile);
+    }
 }
-
 
 /**
- * =============================================================================
- * Test Area (Keep separate from the library functions)
- * =============================================================================
+ * ================================
+ * Command-Line Argument Handling
+ * ================================
  */
+if (php_sapi_name() === 'cli') {
+    global $argv;
 
-// --- Test Data ---
-$birds = ['blue', 'tit', 'pigeon', 'nested' => ['robin', 'sparrow']];
-$fruit = ['apple', 'banana', 'pear'];
-$cars = ['ford', 'peugeot', 'vauxhall'];
+    $config = get_config(); // Updated call
 
-// --- Test Function ---
-function genRandHtml(int $num_lines): array { // Return array as intended by commented out code
-    // Use bwdebug to mark entry into this test function
-    bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
+    // Check for specific test flags
+    if (in_array('--test-colors', $argv)) {
 
-    $lines = [];
-    $elements = [
-        "<h1>This is a random heading</h1>",
-        "<p>This is a random paragraph</p>",
-        "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
-    ];
+        /**
+         * Outputs a list of the configured ANSI color names, each displayed in its own color.
+         * Requires a terminal that supports ANSI escape codes.
+         */
+        function test_colors(): void { // Renamed & Moved
+            $config = get_config(); // Updated call
+            $resetCode = $config['color_reset'] ?? "\033[0m";
 
-    for ($i = 0; $i < $num_lines; $i++) {
-        $lines[] = $elements[array_rand($elements)];
+            echo $resetCode."--- Testing BWDebug Colors ---\n";
+
+            $colorMappings = [
+                'Debug Header' => 'debug_header_color',
+                'Method Header' => 'method_header_color',
+                'Actual Output' => 'actual_output_color',
+                'Caller Info' => 'caller_info_color',
+            ];
+
+            foreach ($colorMappings as $name => $configKey) {
+                if (isset($config[$configKey])) {
+                    $colorCode = $config[$configKey];
+                    echo $name . ": " . $colorCode . "Sample Text (" . addslashes($colorCode) . ")\n". $resetCode;
+                } else {
+                    echo $name . ": Not configured\n";
+                }
+            }
+            echo "--- Color Test Finished ---\n";
+        }
+
+        echo "Running color test...\n";
+        test_colors();
+        exit;
     }
 
-    // Use bwdebug to show the result before returning
-    bwdebug(['Generated HTML Lines', $lines]);
-    return $lines;
-}
+    // --- Fallback to General Test Execution ---
+    if ($config['run_tests'] == 1) {
 
+        // --- Test Data --- (Moved inside conditional block)
+        $birds = ['blue', 'tit', 'pigeon', 'nested' => ['robin', 'sparrow']];
+        $fruit = ['apple', 'banana', 'pear'];
+        $cars = ['ford', 'peugeot', 'vauxhall'];
 
-// --- Example Calls ---
-$config = bwdebug_get_config();
-if ($config['run_tests'] == 1) {
-    echo "Running bwdebug examples...\n";
+        // --- Test Function --- (Moved inside conditional block)
+        function genRandHtml(int $num_lines): array {
+            bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
 
-    // Example 1: Simple string with header
-    bwdebug("Starting debug session...", 1, true);
+            $lines = [];
+            $elements = [
+                "<h1>This is a random heading</h1>",
+                "<p>This is a random paragraph</p>",
+                "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
+            ];
 
-    // Example 2: Simple array
-    bwdebug($birds);
+            for ($i = 0; $i < $num_lines; $i++) {
+                $lines[] = $elements[array_rand($elements)];
+            }
 
-    // Example 3: Labelled array to file 2
-    bwdebug(["Current Fruit", $fruit], 2);
+            bwdebug(['Generated HTML Lines', $lines]);
+            return $lines;
+        }
 
-    // Example 4: Method header for test function
-    // (genRandHtml calls bwdebug internally for its header)
-    $randomHtmlArray = genRandHtml(2);
+        echo "Running general bwdebug examples...\n";
 
-    // Example 5: Another variable dump to file 1
-    bwdebug($cars);
+        // Example 1: Simple string with header
+        bwdebug("Starting debug session...", 1, true);
 
-    // Example 6: Integer
-    bwdebug(12345);
+        // Example 2: Simple array
+        bwdebug($birds);
 
-    // Example 7: Output to file 2 with header
-    bwdebug("This goes to file 2, first entry.", 2, true);
-    bwdebug($cars, 2);
+        // Example 3: Labelled array to file 2
+        bwdebug(["Current Fruit", $fruit], 2);
 
+        // Example 4: Method header for test function
+        $randomHtmlArray = genRandHtml(2);
 
-    echo "bwdebug examples finished. Check log files.\n";
+        // Example 5: Another variable dump to file 1
+        bwdebug($cars);
+
+        // Example 6: Integer
+        bwdebug(12345);
+
+        // Example 7: Output to file 2 with header
+        bwdebug("This goes to file 2, first entry.", 2, true);
+        bwdebug($cars, 2);
+
+        echo "General bwdebug examples finished. Check log files.\n";
+    }
 }
 
 ?>
