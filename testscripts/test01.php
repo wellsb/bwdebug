@@ -4,6 +4,8 @@
 
 require_once('/var/www/html/dev/bwdebug2/bwdebug2.php');
 
+timer_start('test timer');
+
 bwdebug('test script one directory deep');
 
 genRandHtml2(1);
@@ -28,3 +30,5 @@ function genRandHtml2(int $num_lines): array
 }
 
 bwdebug('After function call');
+
+timer_end('test timer');
