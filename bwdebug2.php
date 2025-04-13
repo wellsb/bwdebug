@@ -51,7 +51,7 @@ function get_config(): array {
         'label_color' => "\033[1;37m", // Bold White for labels
         'color_reset' => "\033[0m",
 
-        // --- Debugging & Overrides ---
+        // --- Debugging & Overrides
         'debug_to_stdout' => false, // Output raw $capture to standard output (e.g., console)
         'override_xdebug_ini' => true,
         'xdebug_overrides' => [
@@ -317,7 +317,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
     $memoryInfoLine = "";
     $labelPrefix = "";
 
-    // --- Prepare Caller Info Line ---
+    // Prepare Caller Info Line
     $conditionResult = ($config['show_caller_info'] ?? false) && $callerFile !== null && $callerLine !== null;
     if ($conditionResult) {
         $callerInfoText = $callerFile . ':' . $callerLine . ":";
@@ -328,7 +328,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
         }
     }
 
-    // --- Prepare Memory Info Line ---
+    // Prepare Memory Info Line
     $memUsage = '';
     $peakMemUsage = '';
     if ($config['log_memory_usage'] ?? false) {
@@ -346,7 +346,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
         }
     }
 
-    // --- Prepare Label Prefix ---
+    // Prepare Label Prefix
     // Handle both explicit label and the special [TIMER] label
     if ($label === '[TIMER]' || $label === '[TIMER ERROR]') { // Special handling for timer output
         if ($config['color_output'] && $config['color_timer']) {
@@ -364,12 +364,12 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
         }
     }
 
-    // --- Determine dump method ---
+    // Determine dump method
     if ($originalOutputMethod === 'var_dump' && $config['suppress_native_location'] === true) {
         $useOutputMethod = 'print_r';
     }
 
-    // --- Dump Variable ---
+    // Dump Variable
     ob_start();
     switch ($useOutputMethod) {
         case 'var_export': var_export($capture); break;
@@ -379,7 +379,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
     }
     $dumpOutput = ob_get_clean();
 
-    // --- Post-processing ---
+    // Post-processing
     if ($originalOutputMethod === 'var_dump' && $config['strip_tags_from_var_dump']) {
         $dumpOutput = strip_tags($dumpOutput);
         $dumpOutput = html_entity_decode($dumpOutput, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -387,7 +387,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
 
     $dumpOutput = trim($dumpOutput); // Trim captured output
 
-    // --- Build Final Output ---
+    // Build Final Output
     $output = $callerInfoLine . $memoryInfoLine; // Start with caller and memory info
 
     // Apply label prefix and color to the dump output
@@ -405,7 +405,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
         }
     }
 
-    // --- Append Stack Trace ---
+    // Append Stack Trace
     if ($trace !== null) {
         $output .= "\n" . format_stack_trace($trace, $config); // Add formatted trace
     }
@@ -435,14 +435,14 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
  * @param bool $includeTrace Force include stack trace for this call. Defaults to false.
  */
 function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $includeTrace = false): void {
-    // --- Static variable to track if header has been printed in this run ---
+    // Static variable to track if header has been printed in this run
     static $header_printed_this_run = false; // Initialize to false
 
     $config = get_config();
     $stateFile = $config['log_dir'] . '/' . $config['state_file_name'];
     $state = read_state($stateFile);
 
-    // --- Get Caller Information & Stack Trace ---
+    // Get Caller Information & Stack Trace
     $callerFile = null;
     $callerLine = null;
     $trace = null;
@@ -471,21 +471,21 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     }
 
 
-    // --- Apply Xdebug Overrides ---
+    // Apply Xdebug Overrides
     if ($config['override_xdebug_ini']) {
         foreach ($config['xdebug_overrides'] as $key => $value) {
             ini_set($key, (string)$value);
         }
     }
 
-    // --- Determine Log File ---
+    // Determine Log File
     $logFileName = ($fileNum === 2)
         ? $config['second_output_file_name']
         : $config['default_output_file_name'];
     $logFilePath = $config['log_dir'] . '/' . $logFileName;
 
 
-    // --- Debug to Standard Output ---
+    // Debug to Standard Output
     if ($config['debug_to_stdout']) {
         $resetCode = $config['color_reset'] ?? "\033[0m";
         // Check config and static flag for header on stdout
@@ -500,10 +500,10 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         echo "----------------------\n" . $resetCode;
     }
 
-    // --- Prepare Output String ---
+    // Prepare Output String
     $outputString = "";
 
-    // --- Handle Spacing Before All Outputs (Based on time) ---
+    // Handle Spacing Before All Outputs (Based on time)
     $currentTime = time();
     $timeElapsed = $currentTime - ($state->lastStarted ?? 0);
     // Check if spacing is enabled and timeout has been met
@@ -514,14 +514,14 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     // Update lastStarted time *after* checking the timeout for spacing
     $state->lastStarted = $currentTime;
 
-    // --- Print Header Once if Configured ---
+    // Print Header Once if Configured
     if (($config['print_header_once_per_run'] ?? false) && !$header_printed_this_run) {
         // Prepend header if needed. It will appear after the initial blank lines if they were added.
         $outputString .= format_debug_header($config);
         $header_printed_this_run = true; // Set flag so it doesn't print again in this run
     }
 
-    // --- Format Main Content ---
+    // Format Main Content
     $formattedContent = "";
     if (is_string($capture) && strpos($capture, '**') === 0) {
         $formattedContent = format_method_header($capture, $config);
@@ -530,7 +530,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     }
     $outputString .= $formattedContent;
 
-    // --- Handle Spacing Between Outputs ---
+    // Handle Spacing Between Outputs
     if ($config['blank_lines_between_outputs'] > 0) {
         $outputString = rtrim($outputString, "\n");
         $outputString .= str_repeat("\n", $config['blank_lines_between_outputs'] + 1);
@@ -538,7 +538,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         $outputString .= "\n";
     }
 
-    // --- Write to File ---
+    // Write to File
     $logDir = dirname($logFilePath);
     if (!is_dir($logDir)) {
         if (!mkdir($logDir, 0775, true)) {
@@ -552,7 +552,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         error_log("BWDEBUG ERROR: Could not write to log file: " . $logFilePath);
     }
 
-    // --- Save State ---
+    // Save State
     if (!save_state($stateFile, $state)) {
         error_log("BWDEBUG WARNING: Failed to save state file: " . $stateFile);
     }
@@ -608,15 +608,15 @@ if (php_sapi_name() === 'cli') {
         exit;
     }
 
-    // --- Fallback to General Test Execution ---
+    // Fallback to General Test Execution
     if ($config['run_tests'] == 1) {
 
-        // --- Test Data --- (Moved inside conditional block)
+        // Test Data (Moved inside conditional block)
         $birds = ['blue', 'tit', 'pigeon', 'nested' => ['robin', 'sparrow']];
         $fruit = ['apple', 'banana', 'pear'];
         $cars = ['ford', 'peugeot', 'vauxhall'];
 
-        // --- Test Function
+        // Test Function
         function genRandHtml(int $num_lines): array {
             bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
 
