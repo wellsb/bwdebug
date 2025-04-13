@@ -19,12 +19,12 @@ function get_config(): array {
 
         // --- Output Formatting ---
         'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
-        'strip_tags_from_var_dump' => false, // Only applies if output_method is 'var_dump'
-        'suppress_native_location' => true, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
-        'tab_out_method_headers' => true,
-        'gen_rand_number_for_start_marker' => true,
         'show_caller_info' => true, // Control display of caller file/line
         'print_header_once_per_run' => true, // Always print the debug header before each output
+        'suppress_native_location' => true, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
+        'strip_tags_from_var_dump' => false, // Only applies if output_method is 'var_dump'
+        'tab_out_method_headers' => true,
+        'gen_rand_number_for_start_marker' => true,
 
         // --- Spacing & Timing ---
         'blank_lines_between_outputs' => 1, // lines or 0 to disable
