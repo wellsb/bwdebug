@@ -15,15 +15,15 @@ function show_all_ansi_combinations(): void {
 
     // Styles: code => name
     $styles = [
-        '0' => 'Normal', // Technically reset, but good baseline
+        //'0' => 'Normal', // Technically reset, but good baseline
         '1' => 'Bold',
-        // '2' => 'Dim', // Often not supported or same as normal
-        // '3' => 'Italic', // Often not supported
-        '4' => 'Underline',
+        '2' => 'Dim', // Often not supported or same as normal
+        //'3' => 'Italic', // Often not supported
+        //'4' => 'Underline',
         '5' => 'Blink (Slow)', // Often not supported or disabled
-        // '6' => 'Blink (Fast)', // Often not supported or disabled
-        '7' => 'Reverse/Inverse',
-        // '8' => 'Hidden/Conceal', // Usually not useful for display
+        //'6' => 'Blink (Fast)', // Often not supported or disabled
+        //'7' => 'Reverse/Inverse',
+        //'8' => 'Hidden/Conceal', // Usually not useful for display
     ];
 
     // Basic Foreground Colors: code => name

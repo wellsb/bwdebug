@@ -24,6 +24,7 @@ function get_config(): array {
         'tab_out_method_headers' => true,
         'gen_rand_number_for_start_marker' => true,
         'show_caller_info' => true, // Control display of caller file/line
+        'print_header_once_per_run' => true, // Always print the debug header before each output
 
         // --- Spacing & Timing ---
         'blank_lines_between_outputs' => 1, // lines or 0 to disable
@@ -158,7 +159,8 @@ function timer_end(string $label, int $fileNum = 1): void {
     $startTime = $bwdebug_timers[$label] ?? null;
 
     if ($startTime === null) {
-        bwdebug("Timer '{$label}' was not started.", "[TIMER ERROR]", $fileNum); // Use bwdebug to log the error
+        // Removed the isFirstEntry argument (was the 4th arg)
+        bwdebug("Timer '{$label}' was not started.", "[TIMER ERROR]", $fileNum);
         return;
     }
 
@@ -421,19 +423,21 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
  *   bwdebug("some string");
  *   bwdebug($myVar, "My Variable");             // Output with label
  *   bwdebug($data, "Data Set", 2);              // Output with label to file 2
- *   bwdebug($result, null, 1, false, true);     // Output with stack trace
+ *   bwdebug($result, null, 1, true);            // Output with stack trace (last arg is includeTrace)
  *   bwdebug("**File#Class#Method():Line");
- *   timer_start('process');                     // Use timer_start
+ *   timer_start('process');
  *   // ... code ...
- *   timer_end('process');                       // Use timer_end
+ *   timer_end('process');
  *
  * @param mixed $capture The variable or method header string to dump.
  * @param ?string $label Optional label for the output. Defaults to null.
  * @param int $fileNum The file number (1 or 2) to write to. Defaults to 1.
- * @param bool $isFirstEntry Whether this is the first entry (outputs debug header). Defaults to false.
  * @param bool $includeTrace Force include stack trace for this call. Defaults to false.
  */
-function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $isFirstEntry = false, bool $includeTrace = false): void {
+function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $includeTrace = false): void {
+    // --- Static variable to track if header has been printed in this run ---
+    static $header_printed_this_run = false; // Initialize to false
+
     $config = get_config();
     $stateFile = $config['log_dir'] . '/' . $config['state_file_name'];
     $state = read_state($stateFile);
@@ -441,18 +445,14 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     // --- Get Caller Information & Stack Trace ---
     $callerFile = null;
     $callerLine = null;
-    $trace = null; // Initialize trace
-    // Get trace regardless, as we need it for caller info OR if requested
-    // Provide object context for stack trace if available
+    $trace = null;
     $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
 
     // Determine Caller Frame
     $callerFrame = null;
-    // Index 1 is the direct caller of bwdebug
     if (isset($backtrace[1])) {
         $callerFrame = $backtrace[1];
     } elseif (isset($backtrace[0]) && isset($backtrace[0]['file']) && isset($backtrace[0]['line'])) {
-        // Fallback for calls from global scope (less common for the direct caller)
         $callerFrame = $backtrace[0];
     }
 
@@ -467,8 +467,9 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     // Check if stack trace is needed
     $needsTrace = $includeTrace || ($config['include_stack_trace'] ?? false);
     if ($needsTrace) {
-        $trace = $backtrace; // Use the already fetched backtrace
+        $trace = $backtrace;
     }
+
 
     // --- Apply Xdebug Overrides ---
     if ($config['override_xdebug_ini']) {
@@ -483,41 +484,50 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         : $config['default_output_file_name'];
     $logFilePath = $config['log_dir'] . '/' . $logFileName;
 
+
     // --- Debug to Standard Output ---
     if ($config['debug_to_stdout']) {
         $resetCode = $config['color_reset'] ?? "\033[0m";
+        // Check config and static flag for header on stdout
+        if (($config['print_header_once_per_run'] ?? false) && !$header_printed_this_run) {
+            echo format_debug_header($config);
+            // We don't set the flag here, let the file writing logic handle the main flag
+        }
         echo $resetCode . "--- BWDEBUG STDOUT (" . ($callerFile ?? 'UnknownFile') . ":" . ($callerLine ?? 'UnknownLine') . ") ---\n";
-        if ($label !== null) echo "Label: " . $label . "\n"; // Include label in stdout
+        if ($label !== null) echo "Label: " . $label . "\n";
         var_dump($capture);
-        if ($needsTrace && $trace) echo format_stack_trace($trace, $config) . "\n"; // Include trace in stdout
+        if ($needsTrace && $trace) echo format_stack_trace($trace, $config) . "\n";
         echo "----------------------\n" . $resetCode;
     }
 
     // --- Prepare Output String ---
     $outputString = "";
 
-    // --- Handle Spacing Before All Outputs ---
+    // --- Handle Spacing Before All Outputs (Based on time) ---
     $currentTime = time();
     $timeElapsed = $currentTime - ($state->lastStarted ?? 0);
-    if ($config['blank_lines_before_all_outputs'] > 0 && $timeElapsed >= $config['all_output_timeout_seconds']) {
+    // Check if spacing is enabled and timeout has been met
+    if (($config['blank_lines_before_all_outputs'] ?? 0) > 0 && $timeElapsed >= ($config['all_output_timeout_seconds'] ?? 0)) {
+        // Add spacing if timeout expired, before handling the header
         $outputString .= str_repeat("\n", $config['blank_lines_before_all_outputs']);
     }
+    // Update lastStarted time *after* checking the timeout for spacing
     $state->lastStarted = $currentTime;
+
+    // --- Print Header Once if Configured ---
+    if (($config['print_header_once_per_run'] ?? false) && !$header_printed_this_run) {
+        // Prepend header if needed. It will appear after the initial blank lines if they were added.
+        $outputString .= format_debug_header($config);
+        $header_printed_this_run = true; // Set flag so it doesn't print again in this run
+    }
 
     // --- Format Main Content ---
     $formattedContent = "";
-    if ($isFirstEntry) {
-        $formattedContent = format_debug_header($config);
-        // Optionally dump variable on first entry too? Requires passing more args.
-        // $formattedContent .= format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace);
-
-    } else if (is_string($capture) && strpos($capture, '**') === 0) {
+    if (is_string($capture) && strpos($capture, '**') === 0) {
         $formattedContent = format_method_header($capture, $config);
     } else {
-        // Pass label and trace to the formatting function
         $formattedContent = format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace);
     }
-
     $outputString .= $formattedContent;
 
     // --- Handle Spacing Between Outputs ---
