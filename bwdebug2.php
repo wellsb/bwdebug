@@ -6,7 +6,7 @@
  * =============================================================================
  * Centralized configuration for the bwdebug function.
  */
-function get_config(): array { // Reverted name
+function get_config(): array {
     return [
         // --- File Paths ---
         'log_dir' => __DIR__ . '/logs', // Base directory for logs
@@ -19,7 +19,7 @@ function get_config(): array { // Reverted name
 
         // --- Output Formatting ---
         'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
-        'strip_tags_from_var_dump' => true, // Only applies if output_method is 'var_dump'
+        'strip_tags_from_var_dump' => false, // Only applies if output_method is 'var_dump'
         'suppress_native_location' => true, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
         'tab_out_method_headers' => true,
         'gen_rand_number_for_start_marker' => true,
@@ -58,9 +58,9 @@ function get_config(): array { // Reverted name
             'xdebug.var_display_max_children' => 100,
         ],
 
-        'log_memory_usage' => true, // Log current memory usage
-        'log_peak_memory_usage' => true, // Log peak memory usage
-        'include_stack_trace' => true, // Include stack trace by default (can be overridden per call)
+        'log_memory_usage' => false, // Log current memory usage
+        'log_peak_memory_usage' => false, // Log peak memory usage
+        'include_stack_trace' => false, // Include stack trace by default (can be overridden per call)
         'stack_trace_depth' => 10, // Max number of frames in stack trace (0 for unlimited)
     ];
 }
@@ -71,7 +71,7 @@ function get_config(): array { // Reverted name
  * @param string $stateFile Path to the state file.
  * @return object The state object.
  */
-function read_state(string $stateFile): object { // Reverted name
+function read_state(string $stateFile): object {
     $defaultState = (object)['lastStarted' => 0];
 
     // Ensure the directory exists
@@ -85,7 +85,7 @@ function read_state(string $stateFile): object { // Reverted name
 
     if (!file_exists($stateFile)) {
         error_log("BWDEBUG INFO: State file missing, creating default: " . $stateFile);
-        save_state($stateFile, $defaultState); // Updated call (reverted name)
+        save_state($stateFile, $defaultState);
         return $defaultState;
     }
 
@@ -115,7 +115,7 @@ function read_state(string $stateFile): object { // Reverted name
  * @param object $state The state object to save.
  * @return bool True on success, false on failure.
  */
-function save_state(string $stateFile, object $state): bool { // Reverted name
+function save_state(string $stateFile, object $state): bool {
     $stateJson = json_encode($state, JSON_PRETTY_PRINT);
     if ($stateJson === false) {
         error_log("BWDEBUG ERROR: Could not encode state to JSON. Error: " . json_last_error_msg());
@@ -133,7 +133,7 @@ function save_state(string $stateFile, object $state): bool { // Reverted name
  * Stores timer start times.
  * @var array<string, float>
  */
-global $bwdebug_timers; // Keep prefix for global to reduce collision risk
+global $bwdebug_timers; // Global to reduce collision risk
 $bwdebug_timers = [];
 
 /**
@@ -141,7 +141,7 @@ $bwdebug_timers = [];
  *
  * @param string $label Identifier for the timer.
  */
-function timer_start(string $label): void { // Reverted name
+function timer_start(string $label): void {
     global $bwdebug_timers;
     $bwdebug_timers[$label] = microtime(true);
 }
@@ -152,7 +152,7 @@ function timer_start(string $label): void { // Reverted name
  * @param string $label Identifier for the timer.
  * @param int $fileNum Optional log file number (1 or 2).
  */
-function timer_end(string $label, int $fileNum = 1): void { // Reverted name
+function timer_end(string $label, int $fileNum = 1): void {
     global $bwdebug_timers;
     $endTime = microtime(true);
     $startTime = $bwdebug_timers[$label] ?? null;
@@ -178,7 +178,7 @@ function timer_end(string $label, int $fileNum = 1): void { // Reverted name
  * @param int $bytes
  * @return string
  */
-function format_bytes(int $bytes): string { // Reverted name
+function format_bytes(int $bytes): string {
     if ($bytes >= 1048576) { // MB
         return number_format($bytes / 1048576, 2) . ' MB';
     } elseif ($bytes >= 1024) { // KB
@@ -194,7 +194,7 @@ function format_bytes(int $bytes): string { // Reverted name
  * @param array $config The configuration array.
  * @return string The formatted stack trace.
  */
-function format_stack_trace(array $trace, array $config): string { // Reverted name
+function format_stack_trace(array $trace, array $config): string {
     $output = "Stack Trace:\n";
     $resetCode = $config['color_reset'] ?? "\033[0m";
     $colorCode = ($config['color_output'] && $config['color_stack_trace']) ? $config['stack_trace_color'] : '';
@@ -242,7 +242,7 @@ function format_stack_trace(array $trace, array $config): string { // Reverted n
  * @param array $config The configuration array.
  * @return string The formatted header.
  */
-function format_debug_header(array $config): string { // Reverted name
+function format_debug_header(array $config): string {
     $output = "";
     $color = $config['color_output'] && $config['color_debug_headers'];
     $resetCode = $config['color_reset'] ?? "\033[0m";
@@ -270,7 +270,7 @@ function format_debug_header(array $config): string { // Reverted name
  * @param array $config The configuration array.
  * @return string The formatted method header.
  */
-function format_method_header(string $capture, array $config): string { // Reverted name
+function format_method_header(string $capture, array $config): string {
     $output = "";
     $color = $config['color_output'] && $config['color_method_headers'];
     $resetCode = $config['color_reset'] ?? "\033[0m";
@@ -306,14 +306,14 @@ function format_method_header(string $capture, array $config): string { // Rever
  * @param ?array $trace Optional stack trace array.
  * @return string The formatted variable dump.
  */
-function format_variable_dump(mixed $capture, ?string $label, array $config, ?string $callerFile, ?int $callerLine, ?array $trace = null): string { // Reverted name
+function format_variable_dump(mixed $capture, ?string $label, array $config, ?string $callerFile, ?int $callerLine, ?array $trace = null): string {
     $output = "";
     $originalOutputMethod = $config['output_method'];
     $useOutputMethod = $originalOutputMethod;
     $resetCode = $config['color_reset'] ?? "\033[0m";
     $callerInfoLine = "";
-    $memoryInfoLine = ""; // NEW: For memory usage
-    $labelPrefix = ""; // NEW: For label
+    $memoryInfoLine = "";
+    $labelPrefix = "";
 
     // --- Prepare Caller Info Line ---
     $conditionResult = ($config['show_caller_info'] ?? false) && $callerFile !== null && $callerLine !== null;
@@ -330,10 +330,10 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
     $memUsage = '';
     $peakMemUsage = '';
     if ($config['log_memory_usage'] ?? false) {
-        $memUsage = 'Mem: ' . format_bytes(memory_get_usage()); // Updated call (reverted name)
+        $memUsage = 'Mem: ' . format_bytes(memory_get_usage());
     }
     if ($config['log_peak_memory_usage'] ?? false) {
-        $peakMemUsage = 'Peak: ' . format_bytes(memory_get_peak_usage(true)); // Use real usage // Updated call (reverted name)
+        $peakMemUsage = 'Peak: ' . format_bytes(memory_get_peak_usage(true)); // Use real usage
     }
     if ($memUsage || $peakMemUsage) {
         $memoryInfoText = trim($memUsage . ' ' . $peakMemUsage);
@@ -405,7 +405,7 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
 
     // --- Append Stack Trace ---
     if ($trace !== null) {
-        $output .= "\n" . format_stack_trace($trace, $config); // Add formatted trace // Updated call (reverted name)
+        $output .= "\n" . format_stack_trace($trace, $config); // Add formatted trace
     }
 
     // Add a single guaranteed newline at the very end
@@ -433,10 +433,10 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
  * @param bool $isFirstEntry Whether this is the first entry (outputs debug header). Defaults to false.
  * @param bool $includeTrace Force include stack trace for this call. Defaults to false.
  */
-function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $isFirstEntry = false, bool $includeTrace = false): void { // Added $label, $includeTrace
-    $config = get_config(); // Updated call (reverted name)
+function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $isFirstEntry = false, bool $includeTrace = false): void {
+    $config = get_config();
     $stateFile = $config['log_dir'] . '/' . $config['state_file_name'];
-    $state = read_state($stateFile); // Updated call (reverted name)
+    $state = read_state($stateFile);
 
     // --- Get Caller Information & Stack Trace ---
     $callerFile = null;
@@ -489,7 +489,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         echo $resetCode . "--- BWDEBUG STDOUT (" . ($callerFile ?? 'UnknownFile') . ":" . ($callerLine ?? 'UnknownLine') . ") ---\n";
         if ($label !== null) echo "Label: " . $label . "\n"; // Include label in stdout
         var_dump($capture);
-        if ($needsTrace && $trace) echo format_stack_trace($trace, $config) . "\n"; // Include trace in stdout // Updated call (reverted name)
+        if ($needsTrace && $trace) echo format_stack_trace($trace, $config) . "\n"; // Include trace in stdout
         echo "----------------------\n" . $resetCode;
     }
 
@@ -507,15 +507,15 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     // --- Format Main Content ---
     $formattedContent = "";
     if ($isFirstEntry) {
-        $formattedContent = format_debug_header($config); // Updated call (reverted name)
+        $formattedContent = format_debug_header($config);
         // Optionally dump variable on first entry too? Requires passing more args.
-        // $formattedContent .= format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace); // Updated call (reverted name)
+        // $formattedContent .= format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace);
 
     } else if (is_string($capture) && strpos($capture, '**') === 0) {
-        $formattedContent = format_method_header($capture, $config); // Updated call (reverted name)
+        $formattedContent = format_method_header($capture, $config);
     } else {
         // Pass label and trace to the formatting function
-        $formattedContent = format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace); // Updated call (reverted name)
+        $formattedContent = format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace);
     }
 
     $outputString .= $formattedContent;
@@ -524,7 +524,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     if ($config['blank_lines_between_outputs'] > 0) {
         $outputString = rtrim($outputString, "\n");
         $outputString .= str_repeat("\n", $config['blank_lines_between_outputs'] + 1);
-    } else if (substr($outputString, -1) !== "\n") { // PHP 7.4 compatible
+    } else if (substr($outputString, -1) !== "\n") {
         $outputString .= "\n";
     }
 
@@ -533,7 +533,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     if (!is_dir($logDir)) {
         if (!mkdir($logDir, 0775, true)) {
             error_log("BWDEBUG ERROR: Could not create log directory for writing: " . $logDir);
-            save_state($stateFile, $state); // Updated call (reverted name)
+            save_state($stateFile, $state);
             return;
         }
     }
@@ -543,7 +543,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
     }
 
     // --- Save State ---
-    if (!save_state($stateFile, $state)) { // Updated call (reverted name)
+    if (!save_state($stateFile, $state)) {
         error_log("BWDEBUG WARNING: Failed to save state file: " . $stateFile);
     }
 }
@@ -556,7 +556,7 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
 if (php_sapi_name() === 'cli') {
     global $argv;
 
-    $config = get_config(); // Updated call (reverted name)
+    $config = get_config();
 
     // Check for specific test flags
     if (in_array('--test-colors', $argv)) {

@@ -8,6 +8,10 @@ timer_start('test timer');
 
 bwdebug('test script one directory deep');
 
+$Avariable = 'klajslkjshd689076';
+
+bwdebug($Avariable, "My Variable");
+
 genRandHtml2(1);
 
 function genRandHtml2(int $num_lines): array
@@ -30,5 +34,6 @@ function genRandHtml2(int $num_lines): array
 }
 
 bwdebug('After function call');
+bwdebug('something', null, 2, false, true);
 
 timer_end('test timer');
