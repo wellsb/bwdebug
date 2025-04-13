@@ -51,7 +51,7 @@ function get_config(): array {
         'label_color' => "\033[1;37m", // Bold White for labels
         'color_reset' => "\033[0m",
 
-        // --- Debugging & Overrides
+        // --- Debugging & Overrides ---
         'debug_to_stdout' => false, // Output raw $capture to standard output (e.g., console)
         'override_xdebug_ini' => true,
         'xdebug_overrides' => [
@@ -470,7 +470,6 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         $trace = $backtrace;
     }
 
-
     // Apply Xdebug Overrides
     if ($config['override_xdebug_ini']) {
         foreach ($config['xdebug_overrides'] as $key => $value) {
@@ -483,7 +482,6 @@ function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $
         ? $config['second_output_file_name']
         : $config['default_output_file_name'];
     $logFilePath = $config['log_dir'] . '/' . $logFileName;
-
 
     // Debug to Standard Output
     if ($config['debug_to_stdout']) {
