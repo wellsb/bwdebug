@@ -2,44 +2,62 @@
 
 // A one directory deep test script
 
-require_once('/var/www/html/dev/bwdebug2/bwdebug2.php');
+require_once ('anotherclass.php');
+
+require_once('../bwdebug2.php');
 
 timer_start('test timer');
 
-// Removed the '1' (isFirstEntry) argument
 bwdebug('first', 'first label', 1, 0); // Last arg is includeTrace
 
 bwdebug('test script one directory deep');
 
 $Avariable = 'klajslkjshd689076';
 
-bwdebug($Avariable, "My Variable");
+bwdebug($Avariable, "A Variable");
 
-genRandHtml2(1);
+class TestThings {
+    public function genRandHtml2(int $num_lines): array
+    {bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
 
-function genRandHtml2(int $num_lines): array
-{
-    bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
+        $lines = [];
+        $elements = [
+            "<h1>This is a random heading</h1>",
+            "<p>This is a random paragraph</p>",
+            "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
+        ];
 
-    $lines = [];
-    $elements = [
-        "<h1>This is a random heading</h1>",
-        "<p>This is a random paragraph</p>",
-        "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
-    ];
+        for ($i = 0; $i < $num_lines; $i++) {
+            $lines[] = $elements[array_rand($elements)];
+        }
 
-    for ($i = 0; $i < $num_lines; $i++) {
-        $lines[] = $elements[array_rand($elements)];
+        $hexNumbers = $this->genRandomHex(3);
+
+        $lines['hexs'] = $hexNumbers;
+
+        bwdebug($lines,'Generated HTML Lines');
+        return $lines;
     }
 
-    // This call didn't use the isFirstEntry param, so it's okay
-    bwdebug(['Generated HTML Lines', $lines]);
-    return $lines;
+    public function genRandomHex(int $num_hex_numbers): array
+    {bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
+        bwdebug('null', 'stack', 1, 1); // Last arg is includeTrace
+        $hexNumbers = [];
+        for ($i = 0; $i < $num_hex_numbers; $i++) {
+            $hexNumbers[] = sprintf('%06X', mt_rand(0, 0xFFFFFF));
+        }
+
+        bwdebug($hexNumbers, 'Generated Hex Numbers');
+        return $hexNumbers;
+    }
 }
 
-bwdebug('After function call');
+$test = new TestThings();
+$test->genRandHtml2(3);
 
-// Removed the 'false' (isFirstEntry) argument
-bwdebug('something', null, 2, true); // Last arg is includeTrace
+$anotherclass = new anotherclass();
+$anotherclass->outputRandomLetters(5);
+
+bwdebug('After function call');
 
 timer_end('test timer');

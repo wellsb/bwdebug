@@ -1,11 +1,6 @@
 <?php
 
-/**
- * =============================================================================
- * BwDebug Configuration
- * =============================================================================
- * Centralized configuration for the bwdebug function.
- */
+// config
 function get_config(): array {
     return [
         // --- File Paths ---
@@ -20,7 +15,7 @@ function get_config(): array {
         // --- Output Formatting ---
         'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
         'show_caller_info' => true, // Control display of caller file/line
-        'print_header_once_per_run' => true, // Always print the debug header before each output
+        'print_header_once_per_run' => true, // Control whether to print the debug header only once per "run"
         'suppress_native_location' => true, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
         'strip_tags_from_var_dump' => false, // Only applies if output_method is 'var_dump'
         'tab_out_method_headers' => true,
@@ -61,7 +56,6 @@ function get_config(): array {
 
         'log_memory_usage' => false, // Log current memory usage
         'log_peak_memory_usage' => false, // Log peak memory usage
-        'include_stack_trace' => false, // Include stack trace by default (can be overridden per call)
         'stack_trace_depth' => 10, // Max number of frames in stack trace (0 for unlimited)
     ];
 }
@@ -73,7 +67,11 @@ function get_config(): array {
  * @return object The state object.
  */
 function read_state(string $stateFile): object {
-    $defaultState = (object)['lastStarted' => 0];
+    // Initialize default state with new property for header tracking
+    $defaultState = (object)[
+        'lastStarted' => 0,
+        'headerPrintedForCurrentRun' => false // New property to track header printing
+    ];
 
     // Ensure the directory exists
     $logDir = dirname($stateFile);
@@ -102,8 +100,12 @@ function read_state(string $stateFile): object {
         return $defaultState;
     }
 
+    // Ensure all expected properties exist, providing defaults if missing (for backward compatibility)
     if (!property_exists($state, 'lastStarted')) {
         $state->lastStarted = 0;
+    }
+    if (!property_exists($state, 'headerPrintedForCurrentRun')) {
+        $state->headerPrintedForCurrentRun = false; // Initialize if upgrading from older state file
     }
 
     return $state;
@@ -159,7 +161,6 @@ function timer_end(string $label, int $fileNum = 1): void {
     $startTime = $bwdebug_timers[$label] ?? null;
 
     if ($startTime === null) {
-        // Removed the isFirstEntry argument (was the 4th arg)
         bwdebug("Timer '{$label}' was not started.", "[TIMER ERROR]", $fileNum);
         return;
     }
@@ -308,7 +309,7 @@ function format_method_header(string $capture, array $config): string {
  * @param ?array $trace Optional stack trace array.
  * @return string The formatted variable dump.
  */
-function format_variable_dump(mixed $capture, ?string $label, array $config, ?string $callerFile, ?int $callerLine, ?array $trace = null): string {
+function format_variable_dump($capture, ?string $label, array $config, ?string $callerFile, ?int $callerLine, ?array $trace = null): string {
     $output = "";
     $originalOutputMethod = $config['output_method'];
     $useOutputMethod = $originalOutputMethod;
@@ -391,27 +392,23 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
     $output = $callerInfoLine . $memoryInfoLine; // Start with caller and memory info
 
     // Apply label prefix and color to the dump output
-    $actualOutputColor = ($config['color_output'] && $config['color_actual_output']) ? $config['actual_output_color'] : '';
-    if ($labelPrefix && isset($config['timer_color']) && strpos($labelPrefix, $config['timer_color']) !== false) {
-        // Apply timer color if labelPrefix contains it
-        $output .= $labelPrefix . $dumpOutput . $resetCode;
-    } else {
-        // Apply label prefix (if any) and standard output color
-        $output .= $labelPrefix; // Add label prefix first
-        if ($actualOutputColor) {
-            $output .= $actualOutputColor . $dumpOutput . $resetCode;
-        } else {
-            $output .= $dumpOutput;
-        }
+    // (This part will be handled by the bwdebug function itself now for actual output coloring)
+    if ($labelPrefix) {
+        $output .= $labelPrefix;
     }
 
-    // Append Stack Trace
+    // Apply main actual output color if enabled
+    if ($config['color_output'] && $config['color_actual_output']) {
+        $output .= $config['actual_output_color'];
+    }
+
+    $output .= $dumpOutput . $resetCode . "\n"; // Add reset code after dump and a newline
+
+    // Append stack trace if requested
+    //if ($trace !== null && ($config['include_stack_trace'] ?? false)) {
     if ($trace !== null) {
-        $output .= "\n" . format_stack_trace($trace, $config); // Add formatted trace
+        $output .= format_stack_trace($trace, $config) . "\n";
     }
-
-    // Add a single guaranteed newline at the very end
-    $output .= "\n";
 
     return $output;
 }
@@ -420,147 +417,154 @@ function format_variable_dump(mixed $capture, ?string $label, array $config, ?st
  * Debug function to dump variables to a log file.
  *
  * Examples:
- *   bwdebug("some string");
- *   bwdebug($myVar, "My Variable");             // Output with label
- *   bwdebug($data, "Data Set", 2);              // Output with label to file 2
- *   bwdebug($result, null, 1, true);            // Output with stack trace (last arg is includeTrace)
- *   bwdebug("**File#Class#Method():Line");
- *   timer_start('process');
- *   // ... code ...
- *   timer_end('process');
+ * bwdebug("some string");
+ * bwdebug($myVar, "My Variable");             // Output with label to default file (1)
+ * bwdebug($data, "Data Set", 2);              // Output with label to file 2
+ * bwdebug($result, 'my stack trace', 1, true);            // Output with stack trace (last arg is includeTrace)
+ * bwdebug("**File#Class#Method():Line");
+ * timer_start('process');
+ * // ... code ...
+ * timer_end('process');
  *
- * @param mixed $capture The variable or method header string to dump.
- * @param ?string $label Optional label for the output. Defaults to null.
- * @param int $fileNum The file number (1 or 2) to write to. Defaults to 1.
- * @param bool $includeTrace Force include stack trace for this call. Defaults to false.
+ * @param mixed $capture The variable or message to debug.
+ * @param string|null $label An optional label for the output.
+ * @param int $fileNum Optional log file number (1 or 2).
+ * @param bool $includeTrace Whether to include a stack trace in the output.
  */
-function bwdebug(mixed $capture, ?string $label = null, int $fileNum = 1, bool $includeTrace = false): void {
-    // Static variable to track if header has been printed in this run
-    static $header_printed_this_run = false; // Initialize to false
+function bwdebug($capture, ?string $label = null, int $fileNum = 1, bool $includeTrace = false): void {
+    // Determine the actual caller's file and line number
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-    $config = get_config();
-    $stateFile = $config['log_dir'] . '/' . $config['state_file_name'];
-    $state = read_state($stateFile);
+    $callerFile = '[unknown file]';
+    $callerLine = '[unknown line]';
 
-    // Get Caller Information & Stack Trace
-    $callerFile = null;
-    $callerLine = null;
-    $trace = null;
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
+    // Iterate through the stack to find the first frame that is NOT from bwdebug2.php.
+    // This robustly finds the line in the user's script that called bwdebug.
+    $foundCaller = false;
+    foreach ($trace as $i => $frame) {
+        // Skip frames that are part of the bwdebug system (heuristically by checking the file name).
+        // This assumes all bwdebug internal functions are within 'bwdebug2.php'.
+        if (isset($frame['file']) && str_contains($frame['file'], 'bwdebug2.php')) {
+            continue;
+        }
 
-    // Determine Caller Frame
-    $callerFrame = null;
-    if (isset($backtrace[1])) {
-        $callerFrame = $backtrace[1];
-    } elseif (isset($backtrace[0]) && isset($backtrace[0]['file']) && isset($backtrace[0]['line'])) {
-        $callerFrame = $backtrace[0];
+        // If we reach here, this frame is likely the actual caller from the user's script.
+        if (isset($frame['file']) && isset($frame['line'])) {
+            $callerFile = $frame['file'];
+            $callerLine = $frame['line'];
+            $foundCaller = true;
+            break; // Found the caller, stop searching.
+        }
     }
 
-    // Extract Caller Info
-    if ($callerFrame !== null && isset($callerFrame['file']) && isset($callerFrame['line'])) {
-        $callerFile = $callerFrame['file'];
-        $callerLine = $callerFrame['line'];
-    } else {
-        error_log("BWDEBUG WARNING: Could not determine caller file/line.");
+    // Fallback if no external caller was found (e.g., bwdebug called directly within bwdebug2.php
+    // or in a very shallow script without a distinct caller frame).
+    if (!$foundCaller && isset($trace[0])) {
+        $callerFile = $trace[0]['file'] ?? '[unknown file]';
+        $callerLine = $trace[0]['line'] ?? '[unknown line]';
     }
 
-    // Check if stack trace is needed
-    $needsTrace = $includeTrace || ($config['include_stack_trace'] ?? false);
-    if ($needsTrace) {
-        $trace = $backtrace;
-    }
+    $config = get_config(); // Ensure config is loaded
 
-    // Apply Xdebug Overrides
-    if ($config['override_xdebug_ini']) {
+    // Override xdebug settings if enabled
+    if ($config['override_xdebug_ini'] ?? false) {
         foreach ($config['xdebug_overrides'] as $key => $value) {
             ini_set($key, (string)$value);
         }
     }
 
-    // Determine Log File
-    $logFileName = ($fileNum === 2)
-        ? $config['second_output_file_name']
-        : $config['default_output_file_name'];
-    $logFilePath = $config['log_dir'] . '/' . $logFileName;
+    // Determine output file
+    $outputFile = $config['log_dir'] . '/' . $config['default_output_file_name'];
+    if ($fileNum === 2) {
+        $outputFile = $config['log_dir'] . '/' . $config['second_output_file_name'];
+    }
 
-    // Debug to Standard Output
-    if ($config['debug_to_stdout']) {
-        $resetCode = $config['color_reset'] ?? "\033[0m";
-        // Check config and static flag for header on stdout
-        if (($config['print_header_once_per_run'] ?? false) && !$header_printed_this_run) {
-            echo format_debug_header($config);
-            // We don't set the flag here, let the file writing logic handle the main flag
+    // Ensure log directory exists
+    $logDir = dirname($outputFile);
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0775, true);
+    }
+
+    // Load state for tracking lastStarted and headerPrintedForCurrentRun
+    $stateFile = $config['log_dir'] . '/' . $config['state_file_name'];
+    $state = read_state($stateFile);
+    $currentTime = microtime(true);
+
+    $isNewRun = false;
+    // Determine if enough time has passed to consider it a "new run"
+    if (($config['all_output_timeout_seconds'] ?? 0) > 0 && ($currentTime - ($state->lastStarted ?? 0)) > ($config['all_output_timeout_seconds'] ?? 0)) {
+        $isNewRun = true;
+    }
+
+    $finalOutput = "";
+
+    // If it's a new run (based on timeout), reset the headerPrintedForCurrentRun flag
+    if ($isNewRun) {
+        $state->headerPrintedForCurrentRun = false; // Reset the flag for a new run
+        // Add blank lines before all outputs if configured for new runs
+        if (($config['blank_lines_before_all_outputs'] ?? 0) > 0) {
+            for ($i = 0; $i < $config['blank_lines_before_all_outputs']; $i++) {
+                file_put_contents($outputFile, "\n", FILE_APPEND | LOCK_EX);
+                if ($config['debug_to_stdout']) {
+                    echo "\n";
+                }
+            }
         }
-        echo $resetCode . "--- BWDEBUG STDOUT (" . ($callerFile ?? 'UnknownFile') . ":" . ($callerLine ?? 'UnknownLine') . ") ---\n";
-        if ($label !== null) echo "Label: " . $label . "\n";
-        var_dump($capture);
-        if ($needsTrace && $trace) echo format_stack_trace($trace, $config) . "\n";
-        echo "----------------------\n" . $resetCode;
     }
 
-    // Prepare Output String
-    $outputString = "";
-
-    // Handle Spacing Before All Outputs (Based on time)
-    $currentTime = time();
-    $timeElapsed = $currentTime - ($state->lastStarted ?? 0);
-    // Check if spacing is enabled and timeout has been met
-    if (($config['blank_lines_before_all_outputs'] ?? 0) > 0 && $timeElapsed >= ($config['all_output_timeout_seconds'] ?? 0)) {
-        // Add spacing if timeout expired, before handling the header
-        $outputString .= str_repeat("\n", $config['blank_lines_before_all_outputs']);
-    }
-    // Update lastStarted time *after* checking the timeout for spacing
+    // Update lastStarted for the current debug call regardless of new run or not
     $state->lastStarted = $currentTime;
 
-    // Print Header Once if Configured
-    if (($config['print_header_once_per_run'] ?? false) && !$header_printed_this_run) {
-        // Prepend header if needed. It will appear after the initial blank lines if they were added.
-        $outputString .= format_debug_header($config);
-        $header_printed_this_run = true; // Set flag so it doesn't print again in this run
+    // Print header once per run (if configured)
+    // Only print if 'print_header_once_per_run' is true AND it hasn't been printed for the current run yet
+    if (($config['print_header_once_per_run'] ?? false) && !($state->headerPrintedForCurrentRun ?? false)) {
+        $finalOutput .= format_debug_header($config);
+        $state->headerPrintedForCurrentRun = true; // Mark as printed for this run
     }
 
-    // Format Main Content
-    $formattedContent = "";
-    if (is_string($capture) && strpos($capture, '**') === 0) {
-        $formattedContent = format_method_header($capture, $config);
-    } else {
-        $formattedContent = format_variable_dump($capture, $label, $config, $callerFile, $callerLine, $trace);
-    }
-    $outputString .= $formattedContent;
+    // Save the state after all state modifications (lastStarted and headerPrintedForCurrentRun)
+    save_state($stateFile, $state);
 
-    // Handle Spacing Between Outputs
-    if ($config['blank_lines_between_outputs'] > 0) {
-        $outputString = rtrim($outputString, "\n");
-        $outputString .= str_repeat("\n", $config['blank_lines_between_outputs'] + 1);
-    } else if (substr($outputString, -1) !== "\n") {
-        $outputString .= "\n";
-    }
-
-    // Write to File
-    $logDir = dirname($logFilePath);
-    if (!is_dir($logDir)) {
-        if (!mkdir($logDir, 0775, true)) {
-            error_log("BWDEBUG ERROR: Could not create log directory for writing: " . $logDir);
-            save_state($stateFile, $state);
-            return;
+    // Handle blank lines between outputs (this applies to outputs within the same "run")
+    if (($config['blank_lines_between_outputs'] ?? 0) > 0) {
+        for ($i = 0; $i < $config['blank_lines_between_outputs']; $i++) {
+            $finalOutput .= "\n";
         }
     }
 
-    if (file_put_contents($logFilePath, $outputString, FILE_APPEND | LOCK_EX) === false) {
-        error_log("BWDEBUG ERROR: Could not write to log file: " . $logFilePath);
+    // Format output based on content type
+    if (is_string($capture) && str_starts_with($capture, '**')) { // Special handling for method headers
+        $finalOutput .= format_method_header($capture, $config);
+    } else {
+        // Pass the determined caller file and line to the formatting function
+        $finalOutput .= format_variable_dump(
+            $capture,
+            $label,
+            $config,
+            $callerFile, // Pass the dynamically determined caller file
+            $callerLine, // Pass the dynamically determined caller line
+            $includeTrace ? $trace : null
+        );
     }
 
-    // Save State
-    if (!save_state($stateFile, $state)) {
-        error_log("BWDEBUG WARNING: Failed to save state file: " . $stateFile);
+    // Write to file
+    file_put_contents($outputFile, $finalOutput, FILE_APPEND | LOCK_EX);
+
+    // Debug to stdout
+    if ($config['debug_to_stdout'] ?? false) {
+        echo $finalOutput;
     }
 }
 
-/**
- * ================================
- * Command-Line Argument Handling
- * ================================
- */
+
+
+
+
+
+
+
+// Command-Line Argument Handling
+
 if (php_sapi_name() === 'cli') {
     global $argv;
 
@@ -665,5 +669,3 @@ if (php_sapi_name() === 'cli') {
     }
 
 } // End CLI check
-
-?>
