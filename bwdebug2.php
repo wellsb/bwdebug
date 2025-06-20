@@ -9,9 +9,6 @@ function get_config(): array {
         'second_output_file_name' => 'output2.log',
         'state_file_name' => 'state.json',
 
-        // --- dev ---
-        'run_tests' => false,
-
         // --- Output Formatting ---
         'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
         'show_caller_info' => true, // Control display of caller file/line
@@ -608,64 +605,6 @@ if (php_sapi_name() === 'cli') {
         echo "Running color test...\n";
         test_colors();
         exit;
-    }
-
-    // Fallback to General Test Execution
-    if ($config['run_tests'] == 1) {
-
-        // Test Data (Moved inside conditional block)
-        $birds = ['blue', 'tit', 'pigeon', 'nested' => ['robin', 'sparrow']];
-        $fruit = ['apple', 'banana', 'pear'];
-        $cars = ['ford', 'peugeot', 'vauxhall'];
-
-        // Test Function
-        function genRandHtml(int $num_lines): array {
-            bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
-
-            $lines = [];
-            $elements = [
-                "<h1>This is a random heading</h1>",
-                "<p>This is a random paragraph</p>",
-                "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
-            ];
-
-            for ($i = 0; $i < $num_lines; $i++) {
-                $lines[] = $elements[array_rand($elements)];
-            }
-
-            // label parameter
-            bwdebug($lines, 'Generated HTML Lines');
-            return $lines;
-        }
-
-        echo "Running general bwdebug examples...\n";
-
-        // Example 1: Simple string with header
-        bwdebug("Starting debug session...", null, 1, true); // Label is null
-
-        // Example 2: Simple array (no label)
-        bwdebug($birds);
-
-        // Example 3: Labelled array to file 2
-        bwdebug($fruit, "Current Fruit", 2); // Use label param
-
-        // Example 4: Method header for test function & call with trace
-        timer_start('html_generation'); // Start timer
-        $randomHtmlArray = genRandHtml(1);
-        bwdebug($randomHtmlArray, "HTML Array Result", 1, false, true); // Force trace
-        timer_end('html_generation'); // End timer
-
-        // Example 5: Another variable dump to file 1 with label
-        bwdebug($cars, "Car List");
-
-        // Example 6: Integer
-        bwdebug(12345);
-
-        // Example 7: Output to file 2 with header
-        bwdebug("This goes to file 2, first entry.", null, 2, true);
-        bwdebug($cars, "Cars again", 2);
-
-        echo "General bwdebug examples finished. Check log files.\n";
     }
 
 } // End CLI check
