@@ -13,7 +13,7 @@ function get_config(): array {
         'output_method' => 'var_dump', // 'var_dump', 'print_r', 'var_export'
         'show_caller_info' => true, // Control display of caller file/line
         'print_header_once_per_run' => true, // Control whether to print the debug header only once per "run"
-        'suppress_native_location' => true, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
+        'suppress_native_location' => false, // Suppress the (bwdebug:LINE),  location info added by var_dump/Xdebug
         'strip_tags_from_var_dump' => false, // Only applies if output_method is 'var_dump'
         'tab_out_method_headers' => true,
         'gen_rand_number_for_start_marker' => true,
@@ -54,6 +54,7 @@ function get_config(): array {
         'log_memory_usage' => false, // Log current memory usage
         'log_peak_memory_usage' => false, // Log peak memory usage
         'stack_trace_depth' => 10, // Max number of frames in stack trace (0 for unlimited)
+        'method_header_show_path' => true, // Include the file path in method headers
     ];
 }
 
@@ -389,7 +390,6 @@ function format_variable_dump($capture, ?string $label, array $config, ?string $
     $output = $callerInfoLine . $memoryInfoLine; // Start with caller and memory info
 
     // Apply label prefix and color to the dump output
-    // (This part will be handled by the bwdebug function itself now for actual output coloring)
     if ($labelPrefix) {
         $output .= $labelPrefix;
     }
@@ -414,61 +414,63 @@ function format_variable_dump($capture, ?string $label, array $config, ?string $
  * Debug function to dump variables to a log file.
  *
  * Examples:
- * bwdebug("some string");
- * bwdebug($myVar, "My Variable");             // Output with label to default file (1)
- * bwdebug($data, "Data Set", 2);              // Output with label to file 2
- * bwdebug($result, 'my stack trace', 1, true);            // Output with stack trace (last arg is includeTrace)
- * bwdebug("**File#Class#Method():Line");
- * timer_start('process');
- * // ... code ...
- * timer_end('process');
+ * bwdebug($myVar, "My Variable");                                // Output with label
+ * bwdebug(null, null, 1, false, true);                           // AUTO-GENERATE a method header
+ * bwdebug("My Header", null, 1, false, true);                    // Manually specify a method header
+ * bwdebug("**My Legacy Header");                                 // Legacy method header
  *
- * @param mixed $capture The variable or message to debug.
+ * @param mixed|null $capture The variable or message to debug. Set to null for auto method header.
  * @param string|null $label An optional label for the output.
  * @param int $fileNum Optional log file number (1 or 2).
  * @param bool $includeTrace Whether to include a stack trace in the output.
+ * @param bool $isMethodHeader Treat as a method header. If $capture is null, auto-generates it.
  */
-function bwdebug($capture, ?string $label = null, int $fileNum = 1, bool $includeTrace = false): void {
-    // Determine the actual caller's file and line number
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+function bwdebug(
+    $capture,
+    ?string $label = null,
+    int $fileNum = 1,
+    bool $includeTrace = false,
+    bool $isMethodHeader = false
+): void {
+
+    // Identify the caller's context.
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS | DEBUG_BACKTRACE_PROVIDE_OBJECT);
 
     $callerFile = '[unknown file]';
     $callerLine = '[unknown line]';
+    $callerFunction = '[unknown function]';
+    $callerClass = '';
 
-    // Iterate through the stack to find the first frame that is NOT from bwdebug2.php.
-    // This robustly finds the line in the user's script that called bwdebug.
-    $foundCaller = false;
+    // Find the call to 'bwdebug' in the trace to get the correct file and line.
+    $bwdebugFrameIndex = -1;
     foreach ($trace as $i => $frame) {
-        // Skip frames that are part of the bwdebug system (heuristically by checking the file name).
-        // This assumes all bwdebug internal functions are within 'bwdebug2.php'.
-        if (isset($frame['file']) && str_contains($frame['file'], 'bwdebug2.php')) {
-            continue;
-        }
-
-        // If we reach here, this frame is likely the actual caller from the user's script.
-        if (isset($frame['file']) && isset($frame['line'])) {
-            $callerFile = $frame['file'];
-            $callerLine = $frame['line'];
-            $foundCaller = true;
-            break; // Found the caller, stop searching.
+        // We look for the first frame that is a call to 'bwdebug'.
+        // This is more reliable than checking file names.
+        if (isset($frame['function']) && $frame['function'] === 'bwdebug') {
+            $bwdebugFrameIndex = $i;
+            break;
         }
     }
 
-    // Fallback if no external caller was found (e.g., bwdebug called directly within bwdebug2.php
-    // or in a very shallow script without a distinct caller frame).
-    if (!$foundCaller && isset($trace[0])) {
-        $callerFile = $trace[0]['file'] ?? '[unknown file]';
-        $callerLine = $trace[0]['line'] ?? '[unknown line]';
+    if ($bwdebugFrameIndex !== -1) {
+        // The frame for the bwdebug call itself contains the file and line of the call site.
+        $callerFrame = $trace[$bwdebugFrameIndex];
+        $callerFile = $callerFrame['file'] ?? '[unknown file]';
+        $callerLine = $callerFrame['line'] ?? '[unknown line]';
+
+        // The *next* frame in the trace holds the context (the function/class) that contained the call.
+        $contextFrameIndex = $bwdebugFrameIndex + 1;
+        if (isset($trace[$contextFrameIndex])) {
+            $contextFrame = $trace[$contextFrameIndex];
+            $callerFunction = $contextFrame['function'] ?? '[global]';
+            $callerClass = $contextFrame['class'] ?? '';
+        } else {
+            // If there is no next frame, the call was from the global scope.
+            $callerFunction = '[global]';
+        }
     }
 
     $config = get_config(); // Ensure config is loaded
-
-    // Override xdebug settings if enabled
-    if ($config['override_xdebug_ini'] ?? false) {
-        foreach ($config['xdebug_overrides'] as $key => $value) {
-            ini_set($key, (string)$value);
-        }
-    }
 
     // Determine output file
     $outputFile = $config['log_dir'] . '/' . $config['default_output_file_name'];
@@ -493,7 +495,7 @@ function bwdebug($capture, ?string $label = null, int $fileNum = 1, bool $includ
         $isNewRun = true;
     }
 
-    $finalOutput = "";
+    $finalOutput = ""; // This initial $finalOutput
 
     // If it's a new run (based on timeout), reset the headerPrintedForCurrentRun flag
     if ($isNewRun) {
@@ -529,17 +531,34 @@ function bwdebug($capture, ?string $label = null, int $fileNum = 1, bool $includ
         }
     }
 
-    // Format output based on content type
-    if (is_string($capture) && str_starts_with($capture, '**')) { // Special handling for method headers
-        $finalOutput .= format_method_header($capture, $config);
+    // Determine if this is a header call (new flag, auto-gen, or legacy prefix)
+    $isHeaderCall = $isMethodHeader || (is_string($capture) && str_starts_with($capture, '**'));
+
+    if ($isHeaderCall) {
+        $headerString = is_string($capture) ? $capture : '';
+
+        // If the header flag is set but the capture is empty/null, auto-generate the string.
+        if ($isMethodHeader && empty($headerString)) {
+            $headerParts = [];
+            // Use config to decide whether to show the full path or just the basename
+            $headerParts[] = ($config['method_header_show_path'] ?? false) ? $callerFile : basename($callerFile);
+
+            if (!empty($callerClass)) {
+                $headerParts[] = $callerClass;
+            }
+            $headerParts[] = $callerFunction . '():' . $callerLine;
+            $headerString = implode('#', $headerParts);
+        }
+
+        $finalOutput .= format_method_header($headerString, $config);
     } else {
-        // Pass the determined caller file and line to the formatting function
+        // This is a standard variable dump
         $finalOutput .= format_variable_dump(
             $capture,
             $label,
             $config,
-            $callerFile, // Pass the dynamically determined caller file
-            $callerLine, // Pass the dynamically determined caller line
+            $callerFile,
+            $callerLine,
             $includeTrace ? $trace : null
         );
     }
@@ -552,13 +571,6 @@ function bwdebug($capture, ?string $label = null, int $fileNum = 1, bool $includ
         echo $finalOutput;
     }
 }
-
-
-
-
-
-
-
 
 // Command-Line Argument Handling
 

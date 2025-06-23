@@ -4,7 +4,7 @@ class anotherclass
 {
 
     public function outputRandomLetters(int $length)
-    {bwdebug("**" . __DIR__ . "#" . basename(__FILE__) . "#" . __FUNCTION__ . "():" . __LINE__);
+    {bwdebug(null, null, 1, false, true);
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
