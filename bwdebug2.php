@@ -23,7 +23,7 @@ function get_config(): array {
         'blank_lines_before_all_outputs' => 5, // lines or 0 to disable
         'all_output_timeout_seconds' => 3, // Minimum seconds between "before_all" spacing
 
-        // --- Colorization (ANSI Escape Codes) ---
+        // --- Coloization (ANSI Escape Codes) ---
         'color_output' => true, // Master switch for colors
         'color_debug_headers' => true,
         'debug_header_color' => "\033[32m", // Green
@@ -34,7 +34,7 @@ function get_config(): array {
         'color_caller_info' => true, // Control color of caller info
         'caller_info_color' => "\033[1;97;40m", // Bright White text on Black BG
         'color_memory_usage' => true, // Control color of memory usage
-        'memory_usage_color' => "\033[90m", // Bright Black (Gray) for memory
+        'memory_usage_color' => "\033[91m", // Bright Red for memory
         'color_timer' => true, // Control color of timer output
         'timer_color' => "\033[95m", // Bright Magenta for timers
         'color_stack_trace' => true, // Control color of stack trace
@@ -51,7 +51,7 @@ function get_config(): array {
             'xdebug.var_display_max_children' => 100,
         ],
 
-        'log_memory_usage' => false, // Log current memory usage
+        'log_memory_usage' => 1, // Log current memory usage
         'log_peak_memory_usage' => false, // Log peak memory usage
         'stack_trace_depth' => 10, // Max number of frames in stack trace (0 for unlimited)
         'method_header_show_path' => true, // Include the file path in method headers

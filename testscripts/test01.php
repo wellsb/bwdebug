@@ -24,9 +24,7 @@ class TestThings {
 
         $lines = [];
         $elements = [
-            "<h1>This is a random heading</h1>",
-            "<p>This is a random paragraph</p>",
-            "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
+            "<h1>This is a random heading</h1>", "<p>This is a random paragraph</p>", "<ul><li>Random list item 1</li><li>Random list item 2</li></ul>"
         ];
 
         for ($i = 0; $i < $num_lines; $i++) {
@@ -49,8 +47,6 @@ class TestThings {
         for ($i = 0; $i < $num_hex_numbers; $i++) {
             $hexNumbers[] = sprintf('%06X', mt_rand(0, 0xFFFFFF));
         }
-
-
 
         bwdebug($hexNumbers, 'Generated Hex Numbers');
         return $hexNumbers;
